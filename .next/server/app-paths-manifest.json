@@ -1,0 +1,7 @@
+{
+  "/api/master-settings/box-types/route": "app/api/master-settings/box-types/route.js",
+  "/page": "app/page.js",
+  "/master-settings/page": "app/master-settings/page.js",
+  "/api/master-settings/materials/route": "app/api/master-settings/materials/route.js",
+  "/api/master-settings/boards/route": "app/api/master-settings/boards/route.js"
+}
