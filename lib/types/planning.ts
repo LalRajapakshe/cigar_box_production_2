@@ -1,25 +1,22 @@
-// Placeholder for planning types
 // lib/types/planning.ts
 
 import type {
   BoardDefinition,
   BoxType,
   SheetKey,
-  SheetWithSurfaces,
   SurfaceSpec,
 } from "./master-data";
 import type { Order } from "./order";
 
-/**
- * Planning / calculation domain types.
- *
- * Rules:
- * - Planning is calculated from Order + BoxType + BoardDefinition
- * - Each active sheet is processed individually
- * - Required sheets: topSheet, longSheet, smallSheet
- * - Optional sheets: bottomSheet, middleSheet
- * - Printable surfaces are collected from sheet.surfaces
- */
+export type PlanningPartLabel =
+  | "T/B"
+  | "Top"
+  | "Bottom"
+  | "Long"
+  | "Small"
+  | "Middle";
+
+export type PlanningOrientation = "normal" | "rotated";
 
 export interface PlanningCalculationInput {
   order: Order;
@@ -27,31 +24,29 @@ export interface PlanningCalculationInput {
   boardDefinition: BoardDefinition;
 }
 
-export interface ActiveSheetConfig {
-  sheetKey: SheetKey;
-  sheetLabel: string;
-  isOptional: boolean;
-  sheet: SheetWithSurfaces;
-}
-
 export interface PrintableSurfaceRequirement extends SurfaceSpec {
   sheetKey: SheetKey;
   sheetLabel: string;
 }
 
-export interface PlanningSheetResult {
+export interface PlanningPartResult {
   sheetKey: SheetKey;
+  partLabel: PlanningPartLabel;
   sheetLabel: string;
   isOptional: boolean;
 
   pieceWidth: number;
   pieceHeight: number;
   quantityPerBox: number;
-  orderQuantity: number;
   totalPiecesRequired: number;
 
   boardWidth: number;
   boardHeight: number;
+
+  cuttingWidth: number;
+  cuttingHeight: number;
+
+  orientation: PlanningOrientation;
 
   piecesPerSlat: number;
   slatsPerBoard: number;
@@ -60,15 +55,22 @@ export interface PlanningSheetResult {
   totalSlatsRequired: number;
   totalBoardsRequired: number;
 
+  remainingBoardWidth: number;
+  remainingBoardHeight: number;
+
+  productionTimeMinutesPerPiece: number;
+  totalProductionTimeMinutes: number;
+
   printableSurfaces: PrintableSurfaceRequirement[];
 }
 
 export interface PlanningSummary {
-  activeSheetCount: number;
+  totalParts: number;
   totalPiecesRequired: number;
   totalSlatsRequired: number;
   totalBoardsRequired: number;
   totalPrintableSurfaceCount: number;
+  totalProductionTimeMinutes: number;
 }
 
 export type PlanningWarningCode =
@@ -91,7 +93,7 @@ export interface OrderPlanningResult {
   boardDefinitionId: string;
   boardDefinitionName: string;
 
-  sheetResults: PlanningSheetResult[];
+  parts: PlanningPartResult[];
   printableSurfaces: PrintableSurfaceRequirement[];
   summary: PlanningSummary;
   warnings: PlanningWarning[];

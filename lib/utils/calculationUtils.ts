@@ -1,367 +1,250 @@
-// Placeholder for calculation utilities
 // lib/utils/calculationUtils.ts
-import type { BoxType, SheetKey } from "../types/master-data";
-import type { Order } from "../types/order";
+
 import type {
-  ActiveSheetConfig,
-  OrderPlanningResult,
   PlanningCalculationInput,
-  PlanningSheetResult,
+  OrderPlanningResult,
+  PlanningPartResult,
   PlanningSummary,
   PlanningWarning,
-  PrintableSurfaceRequirement,
 } from "../types/planning";
+import type {
+  SheetWithSurfaces,
+  SheetKey,
+} from "../types/master-data";
 
-interface OrientationCandidate {
-  rotated: boolean;
-  pieceWidth: number;
-  pieceHeight: number;
-  piecesPerSlat: number;
-  slatsPerBoard: number;
-  piecesPerBoard: number;
+/**
+ * Helper to safely parse numbers
+ */
+function safeNumber(value: number | undefined): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
-const SHEET_CONFIGS: Array<{
-  key: SheetKey;
-  label: string;
-  isOptional: boolean;
-}> = [
-  { key: "topSheet", label: "Top Sheet", isOptional: false },
-  { key: "longSheet", label: "Long Sheet", isOptional: false },
-  { key: "smallSheet", label: "Small Sheet", isOptional: false },
-  { key: "bottomSheet", label: "Bottom Sheet", isOptional: true },
-  { key: "middleSheet", label: "Middle Sheet", isOptional: true },
-];
+/**
+ * Build active sheets (Generation 3 model)
+ */
+function getActiveSheets(boxType: PlanningCalculationInput["boxType"]) {
+  const sheets: Array<{
+    key: SheetKey;
+    label: string;
+    sheet?: SheetWithSurfaces;
+    isOptional: boolean;
+  }> = [
+    { key: "topSheet", label: "T/B", sheet: boxType.topSheet, isOptional: false },
+    { key: "longSheet", label: "Long", sheet: boxType.longSheet, isOptional: false },
+    { key: "smallSheet", label: "Small", sheet: boxType.smallSheet, isOptional: false },
+    { key: "bottomSheet", label: "Bottom", sheet: boxType.bottomSheet, isOptional: true },
+    { key: "middleSheet", label: "Middle", sheet: boxType.middleSheet, isOptional: true },
+  ];
 
-function toPositiveWholeNumber(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  return Math.max(0, Math.ceil(value));
+  return sheets.filter((s) => s.sheet);
 }
 
-function isPositiveNumber(value: number): boolean {
-  return Number.isFinite(value) && value > 0;
-}
+/**
+ * Core calculation for one orientation
+ */
+function calculateOrientation(
+  boardWidth: number,
+  boardHeight: number,
+  pieceWidth: number,
+  pieceHeight: number
+) {
+  const cutWidth = pieceWidth + 1;   // 1mm loss
+  const cutHeight = pieceHeight + 1; // 1mm loss
 
-function buildActiveSheets(boxType: BoxType): ActiveSheetConfig[] {
-  return SHEET_CONFIGS.flatMap((config) => {
-    const sheet = boxType[config.key];
+  const slatsPerBoard = Math.floor(boardHeight / cutHeight);
+  const piecesPerSlat = Math.floor(boardWidth / cutWidth);
 
-    if (!sheet) return [];
+  const remainingBoardHeight =
+    boardHeight - slatsPerBoard * cutHeight;
 
-    return [
-      {
-        sheetKey: config.key,
-        sheetLabel: config.label,
-        isOptional: config.isOptional,
-        sheet,
-      },
-    ];
-  });
-}
-
-function buildPrintableSurfaces(
-  activeSheet: ActiveSheetConfig
-): PrintableSurfaceRequirement[] {
-  return activeSheet.sheet.surfaces
-    .filter((surface) => surface.requiresPrinting)
-    .map((surface) => ({
-      ...surface,
-      sheetKey: activeSheet.sheetKey,
-      sheetLabel: activeSheet.sheetLabel,
-    }));
-}
-
-function buildOrientationCandidate(params: {
-  boardWidth: number;
-  boardHeight: number;
-  pieceWidth: number;
-  pieceHeight: number;
-  rotated: boolean;
-}): OrientationCandidate {
-  const { boardWidth, boardHeight, pieceWidth, pieceHeight, rotated } = params;
-
-  if (
-    !isPositiveNumber(boardWidth) ||
-    !isPositiveNumber(boardHeight) ||
-    !isPositiveNumber(pieceWidth) ||
-    !isPositiveNumber(pieceHeight)
-  ) {
-    return {
-      rotated,
-      pieceWidth,
-      pieceHeight,
-      piecesPerSlat: 0,
-      slatsPerBoard: 0,
-      piecesPerBoard: 0,
-    };
-  }
-
-  const piecesPerSlat = Math.floor(boardWidth / pieceWidth);
-  const slatsPerBoard = Math.floor(boardHeight / pieceHeight);
-  const piecesPerBoard = piecesPerSlat * slatsPerBoard;
+  const remainingBoardWidth =
+    boardWidth - piecesPerSlat * cutWidth;
 
   return {
-    rotated,
-    pieceWidth,
-    pieceHeight,
-    piecesPerSlat,
+    cuttingWidth: cutWidth,
+    cuttingHeight: cutHeight,
     slatsPerBoard,
-    piecesPerBoard,
+    piecesPerSlat,
+    remainingBoardWidth,
+    remainingBoardHeight,
+    piecesPerBoard: slatsPerBoard * piecesPerSlat,
   };
 }
 
-function chooseBestOrientation(params: {
-  boardWidth: number;
-  boardHeight: number;
-  pieceWidth: number;
-  pieceHeight: number;
-}): OrientationCandidate {
-  const { boardWidth, boardHeight, pieceWidth, pieceHeight } = params;
-
-  const normal = buildOrientationCandidate({
+/**
+ * Choose best orientation (normal vs rotated)
+ */
+function getBestOrientation(
+  boardWidth: number,
+  boardHeight: number,
+  pieceWidth: number,
+  pieceHeight: number
+) {
+  const normal = calculateOrientation(
     boardWidth,
     boardHeight,
     pieceWidth,
-    pieceHeight,
-    rotated: false,
-  });
+    pieceHeight
+  );
 
-  const rotated = buildOrientationCandidate({
+  const rotated = calculateOrientation(
     boardWidth,
     boardHeight,
-    pieceWidth: pieceHeight,
-    pieceHeight: pieceWidth,
-    rotated: true,
-  });
+    pieceHeight,
+    pieceWidth
+  );
 
   if (rotated.piecesPerBoard > normal.piecesPerBoard) {
-    return rotated;
-  }
-
-  if (rotated.piecesPerBoard < normal.piecesPerBoard) {
-    return normal;
-  }
-
-  if (rotated.piecesPerSlat > normal.piecesPerSlat) {
-    return rotated;
-  }
-
-  if (rotated.piecesPerSlat < normal.piecesPerSlat) {
-    return normal;
-  }
-
-  if (rotated.slatsPerBoard > normal.slatsPerBoard) {
-    return rotated;
-  }
-
-  return normal;
-}
-
-function calculateSheetResult(params: {
-  order: Order;
-  activeSheet: ActiveSheetConfig;
-  boardWidth: number;
-  boardHeight: number;
-}): {
-  result: PlanningSheetResult;
-  warnings: PlanningWarning[];
-} {
-  const { order, activeSheet, boardWidth, boardHeight } = params;
-
-  const warnings: PlanningWarning[] = [];
-  const quantityPerBox = toPositiveWholeNumber(activeSheet.sheet.quantity);
-  const orderQuantity = toPositiveWholeNumber(order.quantity);
-  const pieceWidth = activeSheet.sheet.width;
-  const pieceHeight = activeSheet.sheet.height;
-
-  const printableSurfaces = buildPrintableSurfaces(activeSheet);
-
-  if (
-    !isPositiveNumber(pieceWidth) ||
-    !isPositiveNumber(pieceHeight) ||
-    quantityPerBox <= 0
-  ) {
-    warnings.push({
-      code: "INVALID_SHEET_SIZE",
-      message: `${activeSheet.sheetLabel} has invalid width, height, or quantity.`,
-      sheetKey: activeSheet.sheetKey,
-      sheetLabel: activeSheet.sheetLabel,
-    });
-
     return {
-      result: {
-        sheetKey: activeSheet.sheetKey,
-        sheetLabel: activeSheet.sheetLabel,
-        isOptional: activeSheet.isOptional,
-
-        pieceWidth,
-        pieceHeight,
-        quantityPerBox,
-        orderQuantity,
-        totalPiecesRequired: 0,
-
-        boardWidth,
-        boardHeight,
-
-        piecesPerSlat: 0,
-        slatsPerBoard: 0,
-        piecesPerBoard: 0,
-
-        totalSlatsRequired: 0,
-        totalBoardsRequired: 0,
-
-        printableSurfaces,
-      },
-      warnings,
+      orientation: "rotated" as const,
+      ...rotated,
+      pieceWidth: pieceHeight,
+      pieceHeight: pieceWidth,
     };
   }
 
-  const bestOrientation = chooseBestOrientation({
-    boardWidth,
-    boardHeight,
+  return {
+    orientation: "normal" as const,
+    ...normal,
     pieceWidth,
     pieceHeight,
-  });
-
-  const totalPiecesRequired = quantityPerBox * orderQuantity;
-
-  if (bestOrientation.piecesPerBoard <= 0) {
-    warnings.push({
-      code: "SHEET_DOES_NOT_FIT_BOARD",
-      message: `${activeSheet.sheetLabel} does not fit within the selected board dimensions.`,
-      sheetKey: activeSheet.sheetKey,
-      sheetLabel: activeSheet.sheetLabel,
-    });
-
-    return {
-      result: {
-        sheetKey: activeSheet.sheetKey,
-        sheetLabel: activeSheet.sheetLabel,
-        isOptional: activeSheet.isOptional,
-
-        pieceWidth: bestOrientation.pieceWidth,
-        pieceHeight: bestOrientation.pieceHeight,
-        quantityPerBox,
-        orderQuantity,
-        totalPiecesRequired,
-
-        boardWidth,
-        boardHeight,
-
-        piecesPerSlat: 0,
-        slatsPerBoard: 0,
-        piecesPerBoard: 0,
-
-        totalSlatsRequired: 0,
-        totalBoardsRequired: 0,
-
-        printableSurfaces,
-      },
-      warnings,
-    };
-  }
-
-  const totalSlatsRequired = Math.ceil(
-    totalPiecesRequired / bestOrientation.piecesPerSlat
-  );
-
-  const totalBoardsRequired = Math.ceil(
-    totalSlatsRequired / bestOrientation.slatsPerBoard
-  );
-
-  return {
-    result: {
-      sheetKey: activeSheet.sheetKey,
-      sheetLabel: activeSheet.sheetLabel,
-      isOptional: activeSheet.isOptional,
-
-      pieceWidth: bestOrientation.pieceWidth,
-      pieceHeight: bestOrientation.pieceHeight,
-      quantityPerBox,
-      orderQuantity,
-      totalPiecesRequired,
-
-      boardWidth,
-      boardHeight,
-
-      piecesPerSlat: bestOrientation.piecesPerSlat,
-      slatsPerBoard: bestOrientation.slatsPerBoard,
-      piecesPerBoard: bestOrientation.piecesPerBoard,
-
-      totalSlatsRequired,
-      totalBoardsRequired,
-
-      printableSurfaces,
-    },
-    warnings,
   };
 }
 
-function buildSummary(sheetResults: PlanningSheetResult[]): PlanningSummary {
-  return {
-    activeSheetCount: sheetResults.length,
-    totalPiecesRequired: sheetResults.reduce(
-      (sum, item) => sum + item.totalPiecesRequired,
-      0
-    ),
-    totalSlatsRequired: sheetResults.reduce(
-      (sum, item) => sum + item.totalSlatsRequired,
-      0
-    ),
-    totalBoardsRequired: sheetResults.reduce(
-      (sum, item) => sum + item.totalBoardsRequired,
-      0
-    ),
-    totalPrintableSurfaceCount: sheetResults.reduce(
-      (sum, item) => sum + item.printableSurfaces.length,
-      0
-    ),
-  };
-}
-
-export function calculateOrderPlanning(
+/**
+ * Main planner
+ */
+export function generateOrderPlanning(
   input: PlanningCalculationInput
 ): OrderPlanningResult {
   const { order, boxType, boardDefinition } = input;
 
   const warnings: PlanningWarning[] = [];
-  const boardWidth = boardDefinition.width;
-  const boardHeight = boardDefinition.height;
 
-  const orderQuantity = toPositiveWholeNumber(order.quantity);
-  const activeSheets = buildActiveSheets(boxType);
+  const boardWidth = safeNumber(boardDefinition.width);
+  const boardHeight = safeNumber(boardDefinition.height);
 
-  if (orderQuantity <= 0) {
-    warnings.push({
-      code: "INVALID_ORDER_QUANTITY",
-      message: "Order quantity must be greater than zero.",
-    });
-  }
-
-  if (!isPositiveNumber(boardWidth) || !isPositiveNumber(boardHeight)) {
+  if (boardWidth <= 0 || boardHeight <= 0) {
     warnings.push({
       code: "INVALID_BOARD_SIZE",
-      message: "Board width and height must both be greater than zero.",
+      message: "Board dimensions are invalid.",
     });
   }
 
-  const sheetResults: PlanningSheetResult[] = [];
-  const allPrintableSurfaces: PrintableSurfaceRequirement[] = [];
+  const parts: PlanningPartResult[] = [];
 
-  for (const activeSheet of activeSheets) {
-    const { result, warnings: sheetWarnings } = calculateSheetResult({
-      order,
-      activeSheet,
+  let totalPieces = 0;
+  let totalSlats = 0;
+  let totalBoards = 0;
+  let totalProductionTime = 0;
+
+  const activeSheets = getActiveSheets(boxType);
+
+  for (const sheetConfig of activeSheets) {
+    const sheet = sheetConfig.sheet!;
+    const pieceWidth = safeNumber(sheet.width);
+    const pieceHeight = safeNumber(sheet.height);
+    const quantityPerBox = safeNumber(sheet.quantity);
+
+    if (pieceWidth <= 0 || pieceHeight <= 0) {
+      warnings.push({
+        code: "INVALID_SHEET_SIZE",
+        message: `Invalid size for ${sheetConfig.label}`,
+        sheetKey: sheetConfig.key,
+        sheetLabel: sheetConfig.label,
+      });
+      continue;
+    }
+
+    const orientationResult = getBestOrientation(
       boardWidth,
       boardHeight,
-    });
+      pieceWidth,
+      pieceHeight
+    );
 
-    sheetResults.push(result);
-    warnings.push(...sheetWarnings);
-    allPrintableSurfaces.push(...result.printableSurfaces);
+    const totalPiecesRequired =
+      safeNumber(order.quantity) * quantityPerBox;
+
+    if (orientationResult.piecesPerSlat === 0 || orientationResult.slatsPerBoard === 0) {
+      warnings.push({
+        code: "SHEET_DOES_NOT_FIT_BOARD",
+        message: `${sheetConfig.label} does not fit into board.`,
+        sheetKey: sheetConfig.key,
+        sheetLabel: sheetConfig.label,
+      });
+      continue;
+    }
+
+    const totalSlatsRequired = Math.ceil(
+      totalPiecesRequired / orientationResult.piecesPerSlat
+    );
+
+    const totalBoardsRequired = Math.ceil(
+      totalSlatsRequired / orientationResult.slatsPerBoard
+    );
+
+    const productionTimePerPiece = safeNumber(sheet.productionTimeMinutes);
+    const totalTime = productionTimePerPiece * totalPiecesRequired;
+
+    totalPieces += totalPiecesRequired;
+    totalSlats += totalSlatsRequired;
+    totalBoards += totalBoardsRequired;
+    totalProductionTime += totalTime;
+
+    const part: PlanningPartResult = {
+      sheetKey: sheetConfig.key,
+      partLabel: sheetConfig.label as any,
+      sheetLabel: sheetConfig.label,
+      isOptional: sheetConfig.isOptional,
+
+      pieceWidth: orientationResult.pieceWidth,
+      pieceHeight: orientationResult.pieceHeight,
+      quantityPerBox,
+      totalPiecesRequired,
+
+      boardWidth,
+      boardHeight,
+
+      cuttingWidth: orientationResult.cuttingWidth,
+      cuttingHeight: orientationResult.cuttingHeight,
+
+      orientation: orientationResult.orientation,
+
+      piecesPerSlat: orientationResult.piecesPerSlat,
+      slatsPerBoard: orientationResult.slatsPerBoard,
+      piecesPerBoard: orientationResult.piecesPerBoard,
+
+      totalSlatsRequired,
+      totalBoardsRequired,
+
+      remainingBoardWidth: orientationResult.remainingBoardWidth,
+      remainingBoardHeight: orientationResult.remainingBoardHeight,
+
+      productionTimeMinutesPerPiece: productionTimePerPiece,
+      totalProductionTimeMinutes: totalTime,
+
+      printableSurfaces: sheet.surfaces.map((s) => ({
+        ...s,
+        sheetKey: sheetConfig.key,
+        sheetLabel: sheetConfig.label,
+      })),
+    };
+
+    parts.push(part);
   }
 
-  const summary = buildSummary(sheetResults);
+  const summary: PlanningSummary = {
+    totalParts: parts.length,
+    totalPiecesRequired: totalPieces,
+    totalSlatsRequired: totalSlats,
+    totalBoardsRequired: totalBoards,
+    totalPrintableSurfaceCount: parts.reduce(
+      (acc, p) => acc + p.printableSurfaces.length,
+      0
+    ),
+    totalProductionTimeMinutes: totalProductionTime,
+  };
 
   return {
     orderId: order.id,
@@ -370,13 +253,9 @@ export function calculateOrderPlanning(
     boardDefinitionId: boardDefinition.id,
     boardDefinitionName: boardDefinition.name,
 
-    sheetResults,
-    printableSurfaces: allPrintableSurfaces,
+    parts,
+    printableSurfaces: parts.flatMap((p) => p.printableSurfaces),
     summary,
     warnings,
   };
-}
-
-export function getBoxTypeActiveSheets(boxType: BoxType): ActiveSheetConfig[] {
-  return buildActiveSheets(boxType);
 }

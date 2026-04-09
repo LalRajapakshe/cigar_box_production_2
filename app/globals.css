@@ -101,3 +101,29 @@ body {
     @apply border-emerald-200 bg-emerald-50 text-emerald-700;
   }
 }
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .section-card,
+  .soft-card {
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .rounded-2xl,
+  .rounded-xl {
+    border-radius: 0 !important;
+  }
+
+  .bg-slate-900 {
+    background: #000 !important;
+    color: #fff !important;
+  }
+}
