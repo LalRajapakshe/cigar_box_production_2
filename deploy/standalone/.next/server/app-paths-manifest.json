@@ -1,0 +1,13 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/master-settings/box-types/[id]/route": "app/api/master-settings/box-types/[id]/route.js",
+  "/api/master-settings/boards/[id]/route": "app/api/master-settings/boards/[id]/route.js",
+  "/api/master-settings/boards/route": "app/api/master-settings/boards/route.js",
+  "/api/master-settings/materials/[id]/route": "app/api/master-settings/materials/[id]/route.js",
+  "/api/master-settings/box-types/route": "app/api/master-settings/box-types/route.js",
+  "/api/master-settings/materials/route": "app/api/master-settings/materials/route.js",
+  "/page": "app/page.js",
+  "/master-settings/page": "app/master-settings/page.js",
+  "/orders/page": "app/orders/page.js",
+  "/planning/page": "app/planning/page.js"
+}

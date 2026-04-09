@@ -127,3 +127,24 @@ body {
     color: #fff !important;
   }
 }
+@media print {
+  body {
+    background: white !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .page-shell,
+  .page-container,
+  .page-hero,
+  .section-card,
+  .soft-card {
+    background: white !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

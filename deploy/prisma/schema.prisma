@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlserver"
+}
+
+model MaterialDefinition {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  cost        Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  boards      BoardDefinition[]
+}
+
+model BoardDefinition {
+  id          String   @id @default(cuid())
+  name        String
+  width       Float
+  height      Float
+  materialId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  material    MaterialDefinition? @relation(fields: [materialId], references: [id])
+  boxTypes    BoxType[]
+}
+
+model BoxType {
+  id                String        @id @default(cuid())
+  name              String
+  description       String?
+  boardDefinitionId String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  boardDefinition   BoardDefinition @relation(fields: [boardDefinitionId], references: [id])
+  sheets            BoxTypeSheet[]
+}
+
+model BoxTypeSheet {
+  id         String      @id @default(cuid())
+  boxTypeId  String
+  sheetKey   String
+  width      Float
+  height     Float
+  quantity   Int
+  productionTimeMinutes Int         @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  boxType    BoxType     @relation(fields: [boxTypeId], references: [id], onDelete: Cascade)
+  surfaces   SurfaceSpec[]
+
+  @@unique([boxTypeId, sheetKey])
+}
+
+model SurfaceSpec {
+  id               String       @id @default(cuid())
+  boxTypeSheetId   String
+  surfaceName      String
+  requiresPrinting Boolean      @default(false)
+  imageUrl         String?
+  imageColor       String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  boxTypeSheet     BoxTypeSheet @relation(fields: [boxTypeSheetId], references: [id], onDelete: Cascade)
+}

@@ -1,8 +1,7 @@
 {
-  "/page": "app/page.js",
-  "/api/master-settings/box-types/route": "app/api/master-settings/box-types/route.js",
-  "/orders/page": "app/orders/page.js",
-  "/api/master-settings/materials/route": "app/api/master-settings/materials/route.js",
   "/api/master-settings/boards/route": "app/api/master-settings/boards/route.js",
-  "/planning/page": "app/planning/page.js"
+  "/api/master-settings/box-types/route": "app/api/master-settings/box-types/route.js",
+  "/api/master-settings/materials/route": "app/api/master-settings/materials/route.js",
+  "/planning/page": "app/planning/page.js",
+  "/page": "app/page.js"
 }
