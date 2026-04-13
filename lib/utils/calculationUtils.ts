@@ -12,20 +12,18 @@ import type {
   SheetKey,
 } from "../types/master-data";
 
-/**
- * Helper to safely parse numbers
- */
 function safeNumber(value: number | undefined): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
-/**
- * Build active sheets (Generation 3 model)
- */
+function getPlannedProductionQuantity(orderQuantity: number): number {
+  return Math.ceil(orderQuantity * 1.01);
+}
+
 function getActiveSheets(boxType: PlanningCalculationInput["boxType"]) {
   const sheets: Array<{
     key: SheetKey;
-    label: string;
+    label: "T/B" | "Long" | "Small" | "Bottom" | "Middle";
     sheet?: SheetWithSurfaces;
     isOptional: boolean;
   }> = [
@@ -39,26 +37,20 @@ function getActiveSheets(boxType: PlanningCalculationInput["boxType"]) {
   return sheets.filter((s) => s.sheet);
 }
 
-/**
- * Core calculation for one orientation
- */
 function calculateOrientation(
   boardWidth: number,
   boardHeight: number,
   pieceWidth: number,
   pieceHeight: number
 ) {
-  const cutWidth = pieceWidth + 1;   // 1mm loss
-  const cutHeight = pieceHeight + 1; // 1mm loss
+  const cutWidth = pieceWidth + 1;
+  const cutHeight = pieceHeight + 1;
 
   const slatsPerBoard = Math.floor(boardHeight / cutHeight);
   const piecesPerSlat = Math.floor(boardWidth / cutWidth);
 
-  const remainingBoardHeight =
-    boardHeight - slatsPerBoard * cutHeight;
-
-  const remainingBoardWidth =
-    boardWidth - piecesPerSlat * cutWidth;
+  const remainingBoardHeight = boardHeight - slatsPerBoard * cutHeight;
+  const remainingBoardWidth = boardWidth - piecesPerSlat * cutWidth;
 
   return {
     cuttingWidth: cutWidth,
@@ -71,9 +63,6 @@ function calculateOrientation(
   };
 }
 
-/**
- * Choose best orientation (normal vs rotated)
- */
 function getBestOrientation(
   boardWidth: number,
   boardHeight: number,
@@ -111,9 +100,6 @@ function getBestOrientation(
   };
 }
 
-/**
- * Main planner
- */
 export function generateOrderPlanning(
   input: PlanningCalculationInput
 ): OrderPlanningResult {
@@ -128,6 +114,17 @@ export function generateOrderPlanning(
     warnings.push({
       code: "INVALID_BOARD_SIZE",
       message: "Board dimensions are invalid.",
+    });
+  }
+
+  const originalOrderQuantity = safeNumber(order.quantity);
+  const plannedProductionQuantity =
+    getPlannedProductionQuantity(originalOrderQuantity);
+
+  if (originalOrderQuantity <= 0) {
+    warnings.push({
+      code: "INVALID_ORDER_QUANTITY",
+      message: "Order quantity is invalid.",
     });
   }
 
@@ -163,10 +160,10 @@ export function generateOrderPlanning(
       pieceHeight
     );
 
-    const totalPiecesRequired =
-      safeNumber(order.quantity) * quantityPerBox;
-
-    if (orientationResult.piecesPerSlat === 0 || orientationResult.slatsPerBoard === 0) {
+    if (
+      orientationResult.piecesPerSlat === 0 ||
+      orientationResult.slatsPerBoard === 0
+    ) {
       warnings.push({
         code: "SHEET_DOES_NOT_FIT_BOARD",
         message: `${sheetConfig.label} does not fit into board.`,
@@ -175,6 +172,8 @@ export function generateOrderPlanning(
       });
       continue;
     }
+
+    const totalPiecesRequired = plannedProductionQuantity * quantityPerBox;
 
     const totalSlatsRequired = Math.ceil(
       totalPiecesRequired / orientationResult.piecesPerSlat
@@ -194,7 +193,7 @@ export function generateOrderPlanning(
 
     const part: PlanningPartResult = {
       sheetKey: sheetConfig.key,
-      partLabel: sheetConfig.label as any,
+      partLabel: sheetConfig.label,
       sheetLabel: sheetConfig.label,
       isOptional: sheetConfig.isOptional,
 
@@ -252,6 +251,9 @@ export function generateOrderPlanning(
     boxTypeName: boxType.name,
     boardDefinitionId: boardDefinition.id,
     boardDefinitionName: boardDefinition.name,
+
+    originalOrderQuantity,
+    plannedProductionQuantity,
 
     parts,
     printableSurfaces: parts.flatMap((p) => p.printableSurfaces),

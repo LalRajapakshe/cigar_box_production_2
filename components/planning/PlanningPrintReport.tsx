@@ -139,6 +139,14 @@ export default function PlanningPrintReport({ result }: Props) {
 
             <div className="p-3">
               <div>
+                <span className="font-semibold">Order Qty:</span>{" "}
+                {result.originalOrderQuantity}
+              </div>
+              <div>
+                <span className="font-semibold">Planned Qty (+1%):</span>{" "}
+                {result.plannedProductionQuantity}
+              </div>
+              <div>
                 <span className="font-semibold">Total Boards:</span>{" "}
                 {result.summary.totalBoardsRequired}
               </div>

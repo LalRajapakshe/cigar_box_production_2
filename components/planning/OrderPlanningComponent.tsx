@@ -119,6 +119,12 @@ function SummaryCard({ result }: { result: OrderPlanningResult }) {
       <div className="mb-4 text-lg font-semibold">Production Summary</div>
 
       <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+        <InfoDark label="Order Qty">{result.originalOrderQuantity}</InfoDark>
+
+        <InfoDark label="Planned Qty (+1%)">
+          {result.plannedProductionQuantity}
+        </InfoDark>
+
         <InfoDark label="Total Parts">
           {result.summary.totalParts}
         </InfoDark>
@@ -191,6 +197,15 @@ export default function OrderPlanningComponent({ result }: Props) {
           <p className="mt-1 text-sm text-slate-500">
             {result.boxTypeName} · Board: {result.boardDefinitionName}
           </p>
+
+          <div className="mt-2 flex flex-wrap gap-2 text-xs">
+            <span className="rounded bg-slate-100 px-2 py-1 text-slate-700">
+              Order Qty: {result.originalOrderQuantity}
+            </span>
+            <span className="rounded bg-amber-100 px-2 py-1 font-medium text-amber-800">
+              Planned Qty (+1%): {result.plannedProductionQuantity}
+            </span>
+          </div>
         </div>
 
         <button

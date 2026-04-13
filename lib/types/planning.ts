@@ -93,6 +93,9 @@ export interface OrderPlanningResult {
   boardDefinitionId: string;
   boardDefinitionName: string;
 
+  originalOrderQuantity: number;
+  plannedProductionQuantity: number;
+
   parts: PlanningPartResult[];
   printableSurfaces: PrintableSurfaceRequirement[];
   summary: PlanningSummary;
