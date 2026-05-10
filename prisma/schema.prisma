@@ -20,60 +20,87 @@ model MaterialDefinition {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  boards      BoardDefinition[]
+  boards BoardDefinition[]
 }
 
 model BoardDefinition {
-  id          String   @id @default(cuid())
-  name        String
-  width       Float
-  height      Float
-  materialId  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  name       String
+  width      Float
+  height     Float
+  materialId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  material    MaterialDefinition? @relation(fields: [materialId], references: [id])
-  boxTypes    BoxType[]
+  material MaterialDefinition? @relation(fields: [materialId], references: [id])
+  boxTypes BoxType[]
+  orders   Order[]
 }
 
 model BoxType {
-  id                String        @id @default(cuid())
+  id                String   @id @default(cuid())
   name              String
   description       String?
   boardDefinitionId String
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  boardDefinition   BoardDefinition @relation(fields: [boardDefinitionId], references: [id])
-  sheets            BoxTypeSheet[]
+  boardDefinition BoardDefinition @relation(fields: [boardDefinitionId], references: [id])
+  sheets          BoxTypeSheet[]
+  orders          Order[]
 }
 
 model BoxTypeSheet {
-  id         String      @id @default(cuid())
-  boxTypeId  String
-  sheetKey   String
-  width      Float
-  height     Float
-  quantity   Int
-  productionTimeMinutes Int         @default(0)
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  id                    String   @id @default(cuid())
+  boxTypeId             String
+  sheetKey              String
+  width                 Float
+  height                Float
+  quantity              Int
+  productionTimeMinutes Int      @default(0)
+  polyBagWidthMm Float @default(0)
+  polyBagHeightMm Float @default(0)
+  polyethyleneWeightPer1000 Float @default(0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
-  boxType    BoxType     @relation(fields: [boxTypeId], references: [id], onDelete: Cascade)
-  surfaces   SurfaceSpec[]
+  boxType  BoxType       @relation(fields: [boxTypeId], references: [id], onDelete: Cascade)
+  surfaces SurfaceSpec[]
 
   @@unique([boxTypeId, sheetKey])
 }
 
 model SurfaceSpec {
-  id               String       @id @default(cuid())
+  id               String   @id @default(cuid())
   boxTypeSheetId   String
   surfaceName      String
-  requiresPrinting Boolean      @default(false)
+  requiresPrinting Boolean  @default(false)
   imageUrl         String?
   imageColor       String?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  boxTypeSheet     BoxTypeSheet @relation(fields: [boxTypeSheetId], references: [id], onDelete: Cascade)
+  boxTypeSheet BoxTypeSheet @relation(fields: [boxTypeSheetId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+
+  boxTypeId   String
+  boardTypeId String
+
+  quantity Int
+
+  orderDate    DateTime
+  deliveryDate DateTime
+
+  status String @default("PENDING")
+
+  createdAt DateTime @default(now())
+
+  boxType BoxType @relation(fields: [boxTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  boardType BoardDefinition @relation(fields: [boardTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Orders")
 }

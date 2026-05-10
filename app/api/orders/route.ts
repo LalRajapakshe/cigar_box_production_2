@@ -1,0 +1,56 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+//const prisma = new PrismaClient();
+
+export async function GET() {
+  try {
+    const orders = await prisma.order.findMany({
+      include: {
+        boxType: true,
+        boardType: true,
+      },
+      orderBy: {
+        id: "desc",
+      },
+    });
+
+    return NextResponse.json(orders);
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      { error: "Failed to fetch orders" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const order = await prisma.order.create({
+      data: {
+        boxTypeId: body.boxTypeId,
+        boardTypeId: body.boardTypeId,
+
+        quantity: Number(body.quantity),
+
+        orderDate: new Date(body.orderDate),
+        deliveryDate: new Date(body.deliveryDate),
+
+        status: body.status || "PENDING",
+      },
+    });
+
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error(error);
+
+    return NextResponse.json(
+      { error: "Failed to save order" },
+      { status: 500 }
+    );
+  }
+}

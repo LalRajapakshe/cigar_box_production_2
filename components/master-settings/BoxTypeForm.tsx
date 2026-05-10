@@ -30,6 +30,9 @@ function createSheet(
     height: 0,
     quantity,
     productionTimeMinutes: 0,
+    polyBagWidthMm: 0,
+    polyBagHeightMm: 0,
+    polyethyleneWeightPer1000: 0,    
     surfaces: surfaces.map((surface) => ({ ...surface })),
   };
 }

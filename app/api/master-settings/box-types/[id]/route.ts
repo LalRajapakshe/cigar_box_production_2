@@ -12,9 +12,24 @@ async function fetchBoxTypeById(id: string) {
     where: { id },
     include: {
       sheets: {
-        include: {
-          surfaces: true,
-        },
+
+    select: {
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+
+      sheetKey: true,
+      width: true,
+      height: true,
+      quantity: true,
+      productionTimeMinutes: true,
+
+      polyBagWidthMm: true,
+      polyBagHeightMm: true,
+      polyethyleneWeightPer1000: true,
+
+      surfaces: true,
+    },
       },
     },
   });
@@ -60,6 +75,9 @@ export async function PUT(request: Request, { params }: RouteContext) {
           height: sheet.height,
           quantity: sheet.quantity,
           productionTimeMinutes: sheet.productionTimeMinutes,
+          polyBagWidthMm: sheet.polyBagWidthMm, 
+          polyBagHeightMm: sheet.polyBagHeightMm,
+          polyethyleneWeightPer1000: sheet.polyethyleneWeightPer1000,
           surfaces: {
             create: sheet.surfaces,
           },

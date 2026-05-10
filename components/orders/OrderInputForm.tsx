@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { boardService } from "@/lib/services/boardService";
 import { boxTypeService } from "@/lib/services/boxTypeService";
-import { materialService } from "@/lib/services/materialService";
-import { orderService } from "@/lib/services/orderService";
-import type { BoardDefinition, BoxType, MaterialDefinition } from "@/lib/types/master-data";
+//import { materialService } from "@/lib/services/materialService";
+//import { orderService } from "@/lib/services/orderService";
+//, MaterialDefinition 
+import type { BoardDefinition, BoxType} from "@/lib/types/master-data";
 import type { Order, OrderFormValues, OrderStatus } from "@/lib/types/order";
 
 const inputClassName =
@@ -21,8 +22,8 @@ const initialForm: OrderFormValues = {
   quantity: 1,
   orderDate: "",
   deliveryDate: "",
-  materialOverrideId: "",
-  notes: "",
+ // materialOverrideId: "",
+ // notes: "",
   status: "draft",
 };
 
@@ -83,7 +84,7 @@ function getPrintableSurfaceCount(boxType: BoxType): number {
 export default function OrderInputForm() {
   const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
   const [boards, setBoards] = useState<BoardDefinition[]>([]);
-  const [materials, setMaterials] = useState<MaterialDefinition[]>([]);
+  //const [materials, setMaterials] = useState<MaterialDefinition[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState<OrderFormValues>(initialForm);
   const [loading, setLoading] = useState(true);
@@ -98,10 +99,10 @@ export default function OrderInputForm() {
     return boards.find((item) => item.id === selectedBoxType.boardDefinitionId) ?? null;
   }, [boards, selectedBoxType]);
 
-  const selectedMaterial = useMemo(
-    () => materials.find((item) => item.id === (form.materialOverrideId || undefined)) ?? null,
-    [materials, form.materialOverrideId]
-  );
+//  const selectedMaterial = useMemo(
+//    () => materials.find((item) => item.id === (form.materialOverrideId || undefined)) ?? null,
+//    [materials, form.materialOverrideId]
+//  );
 
   const selectedIncludedSheets = useMemo(
     () => (selectedBoxType ? getIncludedSheets(selectedBoxType) : []),
@@ -112,7 +113,7 @@ export default function OrderInputForm() {
     () => (selectedBoxType ? getPrintableSurfaceCount(selectedBoxType) : 0),
     [selectedBoxType]
   );
-
+/*
   const loadData = async () => {
     setLoading(true);
 
@@ -129,11 +130,29 @@ export default function OrderInputForm() {
     setOrders(orderData);
     setLoading(false);
   };
+*/
+const loadData = async () => {
+  setLoading(true);
+
+  const [boxTypeData, boardData, orderResponse] = await Promise.all([
+    boxTypeService.getAll(),
+    boardService.getAll(),
+    fetch("/api/orders"),
+  ]);
+
+  const orderData = await orderResponse.json();
+
+  setBoxTypes(boxTypeData);
+  setBoards(boardData);
+  setOrders(orderData);
+
+  setLoading(false);
+};
 
   useEffect(() => {
     void loadData();
   }, []);
-
+/*
   const handleCreate = async () => {
     if (!form.boxTypeId) return;
     if (form.quantity <= 0) return;
@@ -153,11 +172,50 @@ export default function OrderInputForm() {
     setForm(initialForm);
     await loadData();
   };
+*/
+const handleCreate = async () => {
+  if (!form.boxTypeId) return;
+  if (form.quantity <= 0) return;
+  if (!form.orderDate) return;
+  if (!form.deliveryDate) return;
 
-  const handleDelete = async (id: string) => {
-    await orderService.remove(id);
-    await loadData();
-  };
+  const selectedBox = boxTypes.find(
+    (item) => item.id === form.boxTypeId
+  );
+
+  if (!selectedBox) return;
+
+  await fetch("/api/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      boxTypeId: form.boxTypeId,
+      boardTypeId: selectedBox.boardDefinitionId,
+      quantity: form.quantity,
+      orderDate: form.orderDate,
+      deliveryDate: form.deliveryDate,
+      status: form.status ?? "PENDING",
+    }),
+  });
+
+  setForm(initialForm);
+
+  await loadData();
+};
+
+ // const handleDelete = async (id: string) => {
+ //   await orderService.remove(id);
+ //   await loadData();
+ // };
+const handleDelete = async (id: string) => {
+  await fetch(`/api/orders/${id}`, {
+    method: "DELETE",
+  });
+
+  await loadData();
+};
 
   return (
     <div className="space-y-8">
@@ -169,7 +227,7 @@ export default function OrderInputForm() {
               <h2 className="text-2xl font-bold text-slate-900">Create Order</h2>
               <p className="mt-2 max-w-3xl text-sm text-slate-500">
                 Create a production order by selecting a box recipe, setting quantity and dates,
-                and optionally applying a material override for the demonstration workflow.
+                and optionally applying a Board Type for the demonstration workflow.
               </p>
             </div>
 
@@ -202,7 +260,7 @@ export default function OrderInputForm() {
                   Order Details
                 </h3>
                 <p className="mt-1 text-sm text-slate-500">
-                  Select the production recipe, quantity, due dates, material override, and status.
+                  Select the production recipe, quantity, due dates, Board Type, and status.
                 </p>
               </div>
 
@@ -286,31 +344,6 @@ export default function OrderInputForm() {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 bg-white p-4">
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Material Override
-                  </label>
-                  <select
-                    value={form.materialOverrideId ?? ""}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        materialOverrideId: e.target.value,
-                      }))
-                    }
-                    className={inputClassName}
-                  >
-                    <option value="">Use board default material</option>
-                    {materials.map((material) => (
-                      <option key={material.id} value={material.id}>
-                        {material.name}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="mt-2 text-xs text-slate-500">
-                    Optional override used only when this order needs a different material.
-                  </p>
-                </div>
 
                 <div className="rounded-xl border border-slate-200 bg-white p-4">
                   <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -444,10 +477,10 @@ export default function OrderInputForm() {
 
                   <div className="soft-card">
                     <div className="text-xs uppercase tracking-wide text-slate-500">
-                      Material Override
+                     Board Type   
                     </div>
                     <div className="mt-2 font-semibold text-slate-900">
-                      {selectedMaterial?.name ?? "Using board default"}
+                     {selectedBoard?.name ?? "Using selected board"}
                     </div>
                   </div>
                 </div>
@@ -501,8 +534,8 @@ export default function OrderInputForm() {
               const orderBoard = orderBoxType
                 ? boards.find((board) => board.id === orderBoxType.boardDefinitionId) ?? null
                 : null;
-              const orderMaterial =
-                materials.find((material) => material.id === order.materialOverrideId) ?? null;
+              //const orderMaterial =
+              //  materials.find((material) => material.id === order.materialOverrideId) ?? null;
 
               return (
                 <div
@@ -562,14 +595,7 @@ export default function OrderInputForm() {
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-wide text-slate-500">
-                        Material Override
-                      </div>
-                      <div className="mt-2 font-medium text-slate-900">
-                        {orderMaterial?.name ?? "None"}
-                      </div>
-                    </div>
+
 
                     <div className="rounded-xl border border-slate-200 bg-white p-4 md:col-span-2">
                       <div className="text-xs uppercase tracking-wide text-slate-500">

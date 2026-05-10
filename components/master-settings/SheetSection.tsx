@@ -66,7 +66,7 @@ export default function SheetSection({
             </h4>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-7">
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Width
@@ -134,6 +134,69 @@ export default function SheetSection({
                 Estimated production time for this sheet in minutes.
               </p>
             </div>
+
+   <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    Poly Bag Width (mm)
+  </label>
+
+  <input
+    type="number"
+    value={sheet.polyBagWidthMm}
+    onChange={(e) =>
+      updateField("polyBagWidthMm", parseNumber(e.target.value))
+    }
+    className={inputClassName}
+    placeholder="Width"
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Poly bag width used for packing calculations.
+  </p>
+</div>
+
+<div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    Poly Bag Height (mm)
+  </label>
+
+  <input
+    type="number"
+    value={sheet.polyBagHeightMm}
+    onChange={(e) =>
+      updateField("polyBagHeightMm", parseNumber(e.target.value))
+    }
+    className={inputClassName}
+    placeholder="Height"
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Poly bag height used for packing calculations.
+  </p>
+</div>
+
+<div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    Polyethylene Weight / 1000 pcs
+  </label>
+
+  <input
+    type="number"
+    value={sheet.polyethyleneWeightPer1000}
+    onChange={(e) =>
+      updateField(
+        "polyethyleneWeightPer1000",
+        parseNumber(e.target.value)
+      )
+    }
+    className={inputClassName}
+    placeholder="Weight"
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Polyethylene consumption weight per 1000 pieces.
+  </p>
+</div>          
           </div>
         </div>
 

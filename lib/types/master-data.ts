@@ -42,6 +42,9 @@ export interface SheetWithSurfaces {
   height: number;
   quantity: number;
   productionTimeMinutes: number;
+  polyBagWidthMm: number;
+  polyBagHeightMm: number;
+  polyethyleneWeightPer1000: number;
   surfaces: SurfaceSpec[];
 }
 

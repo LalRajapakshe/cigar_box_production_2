@@ -21,6 +21,9 @@ type DbSheet = {
   height: number;
   quantity: number;
   productionTimeMinutes: number;
+  polyBagWidthMm: number;
+  polyBagHeightMm: number;
+  polyethyleneWeightPer1000: number;
   surfaces: DbSurface[];
 };
 
@@ -54,6 +57,10 @@ function toClientSheet(sheet: DbSheet | undefined): SheetWithSurfaces | undefine
     height: sheet.height,
     quantity: sheet.quantity,
     productionTimeMinutes: sheet.productionTimeMinutes ?? 0,
+    polyBagWidthMm: sheet.polyBagWidthMm ?? 0,
+    polyBagHeightMm: sheet.polyBagHeightMm ?? 0,
+    polyethyleneWeightPer1000:
+    sheet.polyethyleneWeightPer1000 ?? 0,
     surfaces: sheet.surfaces.map(toClientSurface),
   };
 }
@@ -113,6 +120,9 @@ export function getBoxTypeSheetPayload(input: BoxTypeInput) {
       height: item.sheet.height,
       quantity: item.sheet.quantity,
       productionTimeMinutes: item.sheet.productionTimeMinutes,
+      polyBagWidthMm: item.sheet.polyBagWidthMm,
+      polyBagHeightMm: item.sheet.polyBagHeightMm,
+      polyethyleneWeightPer1000: item.sheet.polyethyleneWeightPer1000,
       surfaces: item.sheet.surfaces.map((surface) => ({
         surfaceName: surface.surfaceName,
         requiresPrinting: surface.requiresPrinting,
