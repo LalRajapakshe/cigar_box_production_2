@@ -97,6 +97,23 @@ function SectionCard({ part }: any) {
             {part.totalProductionTimeMinutes} min
           </span>
         </Info>
+
+        <Info label="Poly Bag Size">
+          {part.polyBagWidthMm} × {part.polyBagHeightMm} mm
+        </Info>
+
+        <Info label="Poly Weight / 1000">
+              <span className="font-semibold text-slate-800">
+              {part.polyethyleneWeightPer1000} Kg
+               </span>
+        </Info>
+
+        <Info label="Poly Requirement">
+              <span className="text-lg font-bold text-emerald-600">
+               {part.totalPolyethyleneRequirementKg.toFixed(2)} Kg
+              </span>
+         </Info>                
+        
       </div>
     </div>
   );

@@ -61,6 +61,11 @@ export interface PlanningPartResult {
   productionTimeMinutesPerPiece: number;
   totalProductionTimeMinutes: number;
 
+  polyBagWidthMm: number;
+  polyBagHeightMm: number;
+  polyethyleneWeightPer1000: number;
+  totalPolyethyleneRequirementKg: number;
+
   printableSurfaces: PrintableSurfaceRequirement[];
 }
 

@@ -8,6 +8,7 @@ generator client {
   output   = "../generated/prisma"
 }
 
+
 datasource db {
   provider = "sqlserver"
 }
@@ -102,5 +103,80 @@ model Order {
 
   boardType BoardDefinition @relation(fields: [boardTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  planning ProductionPlanning?
+
   @@map("Orders")
+}
+
+model ProductionPlanning {
+  id Int @id @default(autoincrement())
+
+  orderId Int @unique
+
+  plannedQuantity Int
+
+  totalParts Int
+  totalPiecesRequired Int
+  totalSlatsRequired Int
+  totalBoardsRequired Int
+  totalProductionTimeMinutes Int
+
+  status String @default("PLANNING")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  parts ProductionPlanningPart[]
+
+  @@map("ProductionPlanning")
+}
+
+model ProductionPlanningPart {
+  id Int @id @default(autoincrement())
+
+  planningId Int
+
+  sheetKey String
+  sheetLabel String
+
+  pieceWidth Float
+  pieceHeight Float
+
+  quantityPerBox Int
+  totalPiecesRequired Int
+
+  boardWidth Float
+  boardHeight Float
+
+  cuttingWidth Float
+  cuttingHeight Float
+
+  orientation String
+
+  piecesPerSlat Int
+  slatsPerBoard Int
+  piecesPerBoard Int
+
+  totalSlatsRequired Int
+  totalBoardsRequired Int
+
+  remainingBoardWidth Float
+  remainingBoardHeight Float
+
+  productionTimeMinutesPerPiece Int
+  totalProductionTimeMinutes Int
+
+  polyBagWidthMm Float @default(0)
+  polyBagHeightMm Float @default(0)
+
+  polyethyleneWeightPer1000 Float @default(0)
+  totalPolyethyleneRequirementKg Float @default(0)
+
+  createdAt DateTime @default(now())
+
+  planning ProductionPlanning @relation(fields: [planningId], references: [id], onDelete: Cascade)
+
+  @@map("ProductionPlanningPart")
 }

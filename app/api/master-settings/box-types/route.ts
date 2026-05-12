@@ -77,6 +77,10 @@ export async function POST(request: Request) {
             height: sheet.height,
             quantity: sheet.quantity,
             productionTimeMinutes: sheet.productionTimeMinutes,
+            polyBagWidthMm: sheet.polyBagWidthMm ?? 0,
+            polyBagHeightMm: sheet.polyBagHeightMm ?? 0,
+            polyethyleneWeightPer1000:
+            sheet.polyethyleneWeightPer1000 ?? 0,
             surfaces: {
               create: sheet.surfaces,
             },

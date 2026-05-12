@@ -186,6 +186,12 @@ export function generateOrderPlanning(
     const productionTimePerPiece = safeNumber(sheet.productionTimeMinutes);
     const totalTime = productionTimePerPiece * totalPiecesRequired;
 
+    const polyethyleneWeightPer1000 = safeNumber(
+     sheet.polyethyleneWeightPer1000 );
+
+    const totalPolyethyleneRequirementKg =
+     (totalPiecesRequired / 1000) * polyethyleneWeightPer1000;
+
     totalPieces += totalPiecesRequired;
     totalSlats += totalSlatsRequired;
     totalBoards += totalBoardsRequired;
@@ -222,6 +228,11 @@ export function generateOrderPlanning(
 
       productionTimeMinutesPerPiece: productionTimePerPiece,
       totalProductionTimeMinutes: totalTime,
+
+      polyethyleneWeightPer1000,
+      totalPolyethyleneRequirementKg,
+      polyBagHeightMm: safeNumber(sheet.polyBagHeightMm),
+      polyBagWidthMm: safeNumber(sheet.polyBagWidthMm),
 
       printableSurfaces: sheet.surfaces.map((s) => ({
         ...s,

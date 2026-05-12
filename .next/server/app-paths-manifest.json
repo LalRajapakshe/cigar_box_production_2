@@ -1,6 +1,7 @@
 {
-  "/page": "app/page.js",
-  "/master-settings/page": "app/master-settings/page.js",
   "/api/master-settings/box-types/route": "app/api/master-settings/box-types/route.js",
-  "/api/master-settings/boards/route": "app/api/master-settings/boards/route.js"
+  "/api/orders/route": "app/api/orders/route.js",
+  "/api/master-settings/boards/route": "app/api/master-settings/boards/route.js",
+  "/planning/page": "app/planning/page.js",
+  "/api/planning/route": "app/api/planning/route.js"
 }
