@@ -20,10 +20,14 @@ export default function PlanningPage() {
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
+  
   //const [loading, setLoading] = useState(true);
    const [savedPlanning, setSavedPlanning] = useState<any>(null);
    const [planningStatus, setPlanningStatus] = useState("PLANNING");
    const [savingPlanning, setSavingPlanning] = useState(false);
+
+   const [pendingStatus, setPendingStatus] = useState("");
+   const [savingStatus, setSavingStatus] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -35,7 +39,7 @@ export default function PlanningPage() {
         boxTypeService.getAll(),
         boardService.getAll(),
       ]);
-console.log("orderData", orderData);
+//console.log("orderData", orderData);
       setOrders(orderData);
       setBoxTypes(boxTypeData);
       setBoards(boardData);
@@ -68,17 +72,17 @@ console.log("orderData", orderData);
     if (!selectedBoxType) return null;
     return boards.find((item) => item.id === selectedBoxType.boardDefinitionId) ?? null;
   }, [boards, selectedBoxType]);
-console.log("selectedOrderId", selectedOrderId);
-console.log("orders", orders);
-console.log(
-  orders.map((o) => ({
-    id: o.id,
-    converted: Number(o.id),
-    type: typeof o.id,
-  }))
-);
-console.log(selectedBoxType);
-console.log(selectedBoard);
+//console.log("selectedOrderId", selectedOrderId);
+//console.log("orders", orders);
+//console.log(
+//  orders.map((o) => ({
+//    id: o.id,
+//    converted: Number(o.id),
+//    type: typeof o.id,
+//  }))
+//);
+//console.log(selectedBoxType);
+//console.log(selectedBoard);
   const planningResult = useMemo(() => {
   if (savedPlanning?.parts?.length) {
     return {
@@ -145,6 +149,7 @@ console.log(selectedBoard);
 
                 if (planning?.status) {
                   setPlanningStatus(planning.status);
+                  //setPendingStatus(planning.status);
                 }
               } catch (error) {
                 console.error(error);
@@ -193,6 +198,20 @@ console.log(selectedBoard);
         alert("Failed to update status");
       }
     };
+         const handleSaveStatus = async () => {
+          if (!savedPlanning) return;
+
+          try {
+            setSavingStatus(true);
+
+            await handleStatusChange(pendingStatus);
+          } finally {
+            setSavingStatus(false);
+          }
+        };
+ // function handleSaveStatus(event: MouseEvent<HTMLButtonElement, MouseEvent>): void {
+ //   throw new Error("Function not implemented.");
+ // }
 
   return (
     <div className="page-shell">
@@ -324,15 +343,29 @@ console.log(selectedBoard);
 
                 <div className="flex items-center gap-3">
                   {savedPlanning ? (
+                     <>
                     <select
-                      value={planningStatus}
-                      onChange={(e) => handleStatusChange(e.target.value)}
+                      value={pendingStatus}
+                      onChange={(e) => setPendingStatus(e.target.value)}
                       className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm"
                     >
                       <option value="PLANNING">Planning</option>
                       <option value="IN_PRODUCTION">In Production</option>
                       <option value="COMPLETE">Complete</option>
+                      <option value="REVERSE">Reverse</option>
                     </select>
+                    
+                      <button
+                        onClick={handleSaveStatus}
+                        disabled={
+                          savingStatus ||
+                          pendingStatus === planningStatus
+                        }
+                        className="rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+                      >
+                        {savingStatus ? "Saving..." : "Save Status"}
+                      </button>
+                      </>
                   ) : (
                     <button
                       onClick={handleSavePlanning}

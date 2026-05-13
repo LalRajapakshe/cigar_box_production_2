@@ -130,6 +130,8 @@ model ProductionPlanning {
 
   parts ProductionPlanningPart[]
 
+  logs ProductionPlanningLog[]
+
   @@map("ProductionPlanning")
 }
 
@@ -179,4 +181,22 @@ model ProductionPlanningPart {
   planning ProductionPlanning @relation(fields: [planningId], references: [id], onDelete: Cascade)
 
   @@map("ProductionPlanningPart")
+}
+
+model ProductionPlanningLog {
+  id         Int      @id @default(autoincrement())
+
+  planningId Int
+
+  orderId    Int
+
+  logDate    DateTime @default(now())
+
+  userId     Int      @default(0)
+
+  status     String
+
+  planning ProductionPlanning @relation(fields: [planningId], references: [id], onDelete: Cascade)
+
+  @@map("ProductionPlanningLog")
 }

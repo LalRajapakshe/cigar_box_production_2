@@ -131,6 +131,17 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    await prisma.productionPlanningLog.create({
+      data: {
+        planningId: planning.id,
+        orderId: Number(body.orderId),
+
+        userId: 0,
+
+        status: "PLANNING",
+      },
+    });
+
     return NextResponse.json(planning);
   } catch (error) {
     console.error("POST /api/planning failed", error);
@@ -177,6 +188,17 @@ export async function PATCH(request: NextRequest) {
         status: orderStatus,
       },
     });
+
+  await prisma.productionPlanningLog.create({
+  data: {
+    planningId: updated.id,
+    orderId: Number(body.orderId),
+
+    userId: 0,
+
+    status: body.status,
+  },
+});  
 
     return NextResponse.json(updated);
   } catch (error) {
