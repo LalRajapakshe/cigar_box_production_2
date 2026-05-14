@@ -55,8 +55,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(existing);
     }
 //console.log(body.parts[0]);
+    const latestPlanning =
+      await prisma.productionPlanning.findFirst({
+        orderBy: {
+          id: "desc",
+        },
+      });
+
+    const nextPlanningNumber = latestPlanning
+      ? latestPlanning.id + 1
+      : 1;
+
+    const planningNo =
+      `PLAN-${String(nextPlanningNumber).padStart(6, "0")}`;
+
     const planning = await prisma.productionPlanning.create({
       data: {
+        planningNo,
         orderId: Number(body.orderId),
 
         plannedQuantity: body.plannedProductionQuantity,

@@ -87,6 +87,8 @@ model SurfaceSpec {
 model Order {
   id Int @id @default(autoincrement())
 
+  orderNo String? @unique
+
   boxTypeId   String
   boardTypeId String
 
@@ -110,6 +112,8 @@ model Order {
 
 model ProductionPlanning {
   id Int @id @default(autoincrement())
+
+  planningNo String? @unique
 
   orderId Int @unique
 

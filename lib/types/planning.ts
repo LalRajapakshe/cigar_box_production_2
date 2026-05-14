@@ -92,6 +92,8 @@ export interface PlanningWarning {
 }
 
 export interface OrderPlanningResult {
+  orderNo?: string;
+  planningNo?: string;
   orderId: string;
   boxTypeId: string;
   boxTypeName: string;

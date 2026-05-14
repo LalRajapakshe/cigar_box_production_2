@@ -20,6 +20,7 @@ export type OrderStatus =
   | "completed";
 
 export interface Order extends BaseEntity {
+  orderNo?: string;
   boxTypeId: string;
   quantity: number;
   orderDate: string;

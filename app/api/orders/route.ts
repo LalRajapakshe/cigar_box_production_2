@@ -26,12 +26,25 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
+      export async function POST(req: Request) {
+        try {
+          const body = await req.json();
+
+     const latestOrder = await prisma.order.findFirst({
+        orderBy: {
+          id: "desc",
+        },
+      });
+
+     const nextOrderNumber = latestOrder
+        ? latestOrder.id + 1
+        : 1;
+
+     const orderNo = `ORD-${String(nextOrderNumber).padStart(6, "0")}`;
 
     const order = await prisma.order.create({
       data: {
+        orderNo,
         boxTypeId: body.boxTypeId,
         boardTypeId: body.boardTypeId,
 

@@ -225,6 +225,17 @@ export default function OrderPlanningComponent({ result }: Props) {
           </div>
         </div>
 
+<div className="grid gap-2 text-sm text-slate-600">
+   <div>
+    <span className="font-semibold">Order No:</span>{" "}
+    {result.orderNo}
+  </div>
+    <div>
+    <span className="font-semibold">Planning No:</span>{" "}
+    {result.planningNo}
+  </div>
+</div>
+
         <button
           onClick={() => window.print()}
           className="print:hidden rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700"

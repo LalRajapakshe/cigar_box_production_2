@@ -93,6 +93,10 @@ export default function PlanningPage() {
       boardDefinitionName: selectedBoard?.name ?? "",
 
       originalOrderQuantity: selectedOrder?.quantity ?? 0,
+      
+      orderNo: selectedOrder?.orderNo ?? "",
+      planningNo: savedPlanning?.planningNo,
+
       plannedProductionQuantity:
         savedPlanning.plannedQuantity,
 
@@ -299,7 +303,7 @@ export default function PlanningPage() {
 
                       return (
                         <option key={order.id} value={order.id}>
-                          {boxType?.name ?? "Unknown Box Type"} - Qty {order.quantity} -{" "}
+                          {order.orderNo} - {boxType?.name ?? "Unknown Box Type"} - Qty {order.quantity}
                           {order.deliveryDate}
                         </option>
                       );
