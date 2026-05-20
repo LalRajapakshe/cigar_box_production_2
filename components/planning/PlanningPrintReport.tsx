@@ -95,6 +95,7 @@ function ReportRow({ part }: { part: PlanningPartResult }) {
   );
 }
 
+
 export default function PlanningPrintReport({ result }: Props) {
   const today = new Date().toLocaleDateString("en-GB");
 

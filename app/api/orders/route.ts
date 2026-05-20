@@ -53,6 +53,10 @@ export async function GET() {
         orderDate: new Date(body.orderDate),
         deliveryDate: new Date(body.deliveryDate),
 
+        usdRatePerBox: Number(body.usdRatePerBox || 0),
+        usdToLkrRate: Number(body.usdToLkrRate || 0),
+        lkrRatePerBox: Number(body.lkrRatePerBox || 0),
+
         status: body.status || "PENDING",
       },
     });

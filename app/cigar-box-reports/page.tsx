@@ -1,0 +1,67 @@
+import Link from "next/link";
+
+const reportGroups = [
+  {
+    title: "Cigar Box Reports",
+    reports: [
+      {
+        name: "Box Type Master Report",
+        href: "/cigar-box-reports/cigar-box/box-type-master",
+      },
+      {
+        name: "Production Planning Report",
+        href: "/cigar-box-reports/cigar-box/production-planning",
+      },
+    ],
+  },
+
+  {
+    title: "Employee Utilization Reports",
+    reports: [
+      {
+        name: "Attendance Report",
+        href: "/repcigar-box-reportsorts/employee-utilization/attendance",
+      },
+    ],
+  },
+];
+
+export default function ReportsPage() {
+  return (
+    <div className="min-h-screen bg-slate-50 p-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-800">
+          Reports
+        </h1>
+
+        <p className="mt-2 text-sm text-slate-500">
+          Generate and print system reports.
+        </p>
+      </div>
+
+      <div className="space-y-8">
+        {reportGroups.map((group) => (
+          <div key={group.title}>
+            <h2 className="mb-4 text-xl font-semibold text-slate-700">
+              {group.title}
+            </h2>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {group.reports.map((report) => (
+                <Link
+                  key={report.href}
+                  href={report.href}
+                  className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-400 hover:shadow-md"
+                >
+                  <div className="text-lg font-semibold text-slate-800">
+                    {report.name}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

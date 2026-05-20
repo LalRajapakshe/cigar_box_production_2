@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createERPItem } from "@/lib/server/erpItemService";
 
 function serializeBoard(board: {
   id: string;
@@ -49,15 +50,28 @@ export async function POST(request: Request) {
       );
     }
 
-    const board = await prisma.boardDefinition.create({
-      data: {
-        name: body.name.trim(),
-        width: Number(body.width),
-        height: Number(body.height),
-        materialId: body.materialId || null,
-      },
-    });
+   const erpResult = await createERPItem({
+  description: body.name.trim(),
 
+  groupCode: 13,
+
+  controlTableCode: 35,
+  defaultUnitId: 3,
+});
+
+const board = await prisma.boardDefinition.create({
+  data: {
+    name: body.name.trim(),
+
+    width: Number(body.width),
+
+    height: Number(body.height),
+
+    materialId: body.materialId || null,
+
+    erpItemRefId: erpResult.erpItemRefId,
+  },
+});
     return NextResponse.json(serializeBoard(board), { status: 201 });
   } catch (error) {
     console.error("POST /api/master-settings/boards failed:", error);

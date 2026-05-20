@@ -32,6 +32,7 @@ model BoardDefinition {
   materialId String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  erpItemRefId Int?
 
   material MaterialDefinition? @relation(fields: [materialId], references: [id])
   boxTypes BoxType[]
@@ -45,7 +46,8 @@ model BoxType {
   boardDefinitionId String
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-
+  erpItemRefId Int?
+  
   boardDefinition BoardDefinition @relation(fields: [boardDefinitionId], references: [id])
   sheets          BoxTypeSheet[]
   orders          Order[]
@@ -64,6 +66,8 @@ model BoxTypeSheet {
   polyethyleneWeightPer1000 Float @default(0)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  erpItemRefId Int?
+  erpItemRefIdPcs Int?
 
   boxType  BoxType       @relation(fields: [boxTypeId], references: [id], onDelete: Cascade)
   surfaces SurfaceSpec[]
@@ -101,6 +105,12 @@ model Order {
 
   createdAt DateTime @default(now())
 
+  usdRatePerBox Float?
+
+  lkrRatePerBox Float?
+
+  usdToLkrRate Float?
+
   boxType BoxType @relation(fields: [boxTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   boardType BoardDefinition @relation(fields: [boardTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -115,7 +125,7 @@ model ProductionPlanning {
 
   planningNo String? @unique
 
-  orderId Int @unique
+  orderId Int 
 
   plannedQuantity Int
 
@@ -135,6 +145,8 @@ model ProductionPlanning {
   parts ProductionPlanningPart[]
 
   logs ProductionPlanningLog[]
+
+  utilizations ProductionEmployeeUtilization[]
 
   @@map("ProductionPlanning")
 }
@@ -203,4 +215,30 @@ model ProductionPlanningLog {
   planning ProductionPlanning @relation(fields: [planningId], references: [id], onDelete: Cascade)
 
   @@map("ProductionPlanningLog")
+}
+
+model EmployeeMaster {
+  empId    Int    @id @default(autoincrement())
+
+  empCode  String @unique
+  empName  String
+
+  utilizations ProductionEmployeeUtilization[]
+}
+
+model ProductionEmployeeUtilization {
+  id           Int      @id @default(autoincrement())
+
+  planningId   Int
+  employeeId   Int
+
+  workingHours Float
+
+  workDate     DateTime @default(now())
+
+  createdAt    DateTime @default(now())
+
+  planning ProductionPlanning  @relation(fields: [planningId], references: [id], onDelete: Cascade)
+
+  employee EmployeeMaster @relation(fields: [employeeId], references: [empId], onDelete: NoAction)
 }

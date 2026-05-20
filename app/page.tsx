@@ -3,6 +3,7 @@
 import Link from "next/link";
 import OrderInputForm from "@/components/orders/OrderInputForm";
 
+
 export default function HomePage() {
   return (
     <div className="page-shell">
@@ -31,6 +32,12 @@ export default function HomePage() {
               <Link href="/planning" className="secondary-btn">
                 Open Planning
               </Link>
+              <Link href="/cigar-box-reports" className="secondary-btn">
+                Open Reports
+              </Link>  
+              <Link href="/employee-utilization" className="secondary-btn">
+                Employee Utilization
+              </Link> 
             </div>
           </div>
         </section>
@@ -68,7 +75,33 @@ export default function HomePage() {
               selected order.
             </p>
           </div>
-        </section>
+          <Link href="/cigar-box-reports">
+            <div className="kpi-card cursor-pointer transition hover:border-slate-400 hover:shadow-md">
+              <div className="text-sm text-slate-500">Module</div>
+
+              <div className="mt-2 text-lg font-semibold text-slate-900">
+                Reports
+              </div>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Generate and print box type, planning, and production reports.
+              </p>
+            </div>
+          </Link>
+          <Link href="/employee-utilization">
+            <div className="kpi-card cursor-pointer transition hover:border-slate-400 hover:shadow-md">
+              <div className="text-sm text-slate-500">Module</div>
+
+              <div className="mt-2 text-lg font-semibold text-slate-900">
+                Employee Utilization
+              </div>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Assign employees and capture working hours against production planning jobs.
+              </p>
+            </div>
+          </Link>
+       </section>
 
         <section className="section-card">
           <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">

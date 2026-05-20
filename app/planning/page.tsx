@@ -20,6 +20,7 @@ export default function PlanningPage() {
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
 
+
   
   //const [loading, setLoading] = useState(true);
    const [savedPlanning, setSavedPlanning] = useState<any>(null);
@@ -28,6 +29,12 @@ export default function PlanningPage() {
 
    const [pendingStatus, setPendingStatus] = useState("");
    const [savingStatus, setSavingStatus] = useState(false);
+
+   //const [remainingQty, setRemainingQty] = useState(0);
+   //const [planningQty, setPlanningQty] = useState(0);
+   //const [confirmedOrderId, setConfirmedOrderId] = 
+   //                     useState<number | null>(null);
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -72,6 +79,8 @@ export default function PlanningPage() {
     if (!selectedBoxType) return null;
     return boards.find((item) => item.id === selectedBoxType.boardDefinitionId) ?? null;
   }, [boards, selectedBoxType]);
+
+
 //console.log("selectedOrderId", selectedOrderId);
 //console.log("orders", orders);
 //console.log(
@@ -121,12 +130,13 @@ export default function PlanningPage() {
     };
   }
 
-  if (!selectedOrder || !selectedBoxType || !selectedBoard) {
+  if (!selectedOrder || !selectedBoxType || !selectedBoard)
+  {
     return null;
   }
 
   return generateOrderPlanning({
-    order: selectedOrder,
+order: selectedOrder,
     boxType: selectedBoxType,
     boardDefinition: selectedBoard,
   });
@@ -332,7 +342,7 @@ export default function PlanningPage() {
             )}
           </div>
 
-          {planningResult ? (
+           {planningResult ? (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4">
                 <div>

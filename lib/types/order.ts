@@ -40,4 +40,7 @@ export interface OrderFormValues {
   materialOverrideId?: string;
   notes?: string;
   status?: OrderStatus;
+  usdRatePerBox?: number;
+  usdToLkrRate?: number;
+  lkrRatePerBox?: number;
 }

@@ -25,6 +25,9 @@ const initialForm: OrderFormValues = {
  // materialOverrideId: "",
  // notes: "",
   status: "draft",
+  usdRatePerBox: 0,
+  usdToLkrRate: 0,
+  lkrRatePerBox: 0,
 };
 
 function parseNumber(value: string): number {
@@ -88,6 +91,7 @@ export default function OrderInputForm() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [form, setForm] = useState<OrderFormValues>(initialForm);
   const [loading, setLoading] = useState(true);
+    const [savingBoard, setSavingBoard] = useState(false); 
 
   const selectedBoxType = useMemo(
     () => boxTypes.find((item) => item.id === form.boxTypeId),
@@ -178,7 +182,8 @@ const handleCreate = async () => {
   if (form.quantity <= 0) return;
   if (!form.orderDate) return;
   if (!form.deliveryDate) return;
-
+try {
+  setSavingBoard(true);
   const selectedBox = boxTypes.find(
     (item) => item.id === form.boxTypeId
   );
@@ -196,13 +201,18 @@ const handleCreate = async () => {
       quantity: form.quantity,
       orderDate: form.orderDate,
       deliveryDate: form.deliveryDate,
+      usdRatePerBox: form.usdRatePerBox,
+      usdToLkrRate: form.usdToLkrRate,
+      lkrRatePerBox: form.lkrRatePerBox,
       status: form.status ?? "PENDING",
     }),
   });
 
   setForm(initialForm);
-
   await loadData();
+} finally {
+    setSavingBoard(false);
+  }
 };
 
  // const handleDelete = async (id: string) => {
@@ -216,6 +226,20 @@ const handleDelete = async (id: string) => {
 
   await loadData();
 };
+
+useEffect(() => {
+  const usdRate = form.usdRatePerBox ?? 0;
+
+  const exchangeRate = 302.5;
+
+  setForm((prev) => ({
+    ...prev,
+    usdToLkrRate: exchangeRate,
+    lkrRatePerBox: Number(
+      (usdRate * exchangeRate).toFixed(2)
+    ),
+  }));
+}, [form.usdRatePerBox]);
 
   return (
     <div className="space-y-8">
@@ -344,6 +368,46 @@ const handleDelete = async (id: string) => {
                   </p>
                 </div>
 
+<div className="rounded-xl border border-slate-200 bg-white p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    USD Rate Per Box
+  </label>
+
+  <input
+    type="number"
+    step="0.01"
+    value={form.usdRatePerBox ?? 0}
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        usdRatePerBox: parseNumber(e.target.value),
+      }))
+    }
+    className={inputClassName}
+    placeholder="USD Rate"
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Export selling rate per finished box in USD.
+  </p>
+</div>
+
+<div className="rounded-xl border border-slate-200 bg-white p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    LKR Rate Per Box
+  </label>
+
+  <input
+    type="number"
+    value={form.lkrRatePerBox ?? 0}
+    className={inputClassName}
+    readOnly
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Automatically converted using USD exchange rate.
+  </p>
+</div>
 
                 <div className="rounded-xl border border-slate-200 bg-white p-4">
                   <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -396,9 +460,11 @@ const handleDelete = async (id: string) => {
               <button
                 type="button"
                 onClick={handleCreate}
-                className={primaryButtonClassName}
+                disabled={savingBoard}
+                className="rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+                //className={primaryButtonClassName}
               >
-                Create Order
+                 {savingBoard ? "Saving..." : "Create Order"}
               </button>
 
               <button

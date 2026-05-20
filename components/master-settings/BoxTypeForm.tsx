@@ -53,6 +53,7 @@ export default function BoxTypeForm() {
   const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
   const [form, setForm] = useState<BoxTypeInput>(initialForm);
   const [loading, setLoading] = useState(true);
+   const [savingBoard, setSavingBoard] = useState(false);  
 
   const loadData = async () => {
     setLoading(true);
@@ -72,6 +73,8 @@ export default function BoxTypeForm() {
 
   const handleCreate = async () => {
     if (!form.name.trim() || !form.boardDefinitionId) return;
+try {
+    setSavingBoard(true);
 
     await boxTypeService.create({
       ...form,
@@ -81,6 +84,9 @@ export default function BoxTypeForm() {
 
     setForm(initialForm);
     await loadData();
+  }finally {
+    setSavingBoard(false);
+  }
   };
 
   const handleDelete = async (id: string) => {
@@ -395,9 +401,11 @@ export default function BoxTypeForm() {
               <button
                 type="button"
                 onClick={handleCreate}
-                className="primary-btn"
+                 disabled={savingBoard}
+                 className="rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+              //  className="primary-btn"
               >
-                Save Box Type
+               {savingBoard ? "Saving..." : "Save Box Type"}
               </button>
 
               <button

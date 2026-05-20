@@ -5,6 +5,7 @@ import {
   toClientBoxType,
 } from "@/lib/server/boxTypeMapper";
 import type { BoxTypeInput } from "@/lib/types/master-data";
+import { createERPItem } from "@/lib/server/erpItemService";
 
 async function fetchBoxTypeById(id: string) {
   return prisma.boxType.findUnique({
@@ -64,14 +65,55 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+const erpResult = await createERPItem({
+  description: body.name.trim(),
+
+  groupCode: 14,
+
+  controlTableCode: 36,
+  defaultUnitId: 3,
+});
+
+const sheetsWithERP = [];
+
+for (const sheet of sheets) {
+  const sheetERPResult = await createERPItem({
+    description: `${body.name.trim()}-${sheet.sheetKey}- Wgt`,
+    groupCode: 22,
+    controlTableCode: 37,
+    defaultUnitId: 1,
+  });
+    const sheetERPResultPcs = await createERPItem({
+    description: `${body.name.trim()}-${sheet.sheetKey}- Pcs`,
+    groupCode: 26,
+    controlTableCode: 37,
+    defaultUnitId: 3,
+  });
+
+  sheetsWithERP.push({
+    sheetKey: sheet.sheetKey,
+    width: sheet.width,
+    height: sheet.height,
+    quantity: sheet.quantity,
+    productionTimeMinutes: sheet.productionTimeMinutes,
+    polyBagWidthMm: sheet.polyBagWidthMm,
+    polyBagHeightMm: sheet.polyBagHeightMm,
+    polyethyleneWeightPer1000:
+      sheet.polyethyleneWeightPer1000,
+    surfaces: [...sheet.surfaces],
+    erpItemRefId: sheetERPResult.erpItemRefId,
+    erpItemRefIdPcs: sheetERPResultPcs.erpItemRefId,
+  });
+}
 
     const created = await prisma.boxType.create({
       data: {
         name: body.name.trim(),
         description: body.description?.trim() || null,
         boardDefinitionId: body.boardDefinitionId,
+        erpItemRefId: erpResult.erpItemRefId,
         sheets: {
-          create: sheets.map((sheet) => ({
+          create: sheetsWithERP.map((sheet) => ({
             sheetKey: sheet.sheetKey,
             width: sheet.width,
             height: sheet.height,
@@ -81,6 +123,8 @@ export async function POST(request: Request) {
             polyBagHeightMm: sheet.polyBagHeightMm ?? 0,
             polyethyleneWeightPer1000:
             sheet.polyethyleneWeightPer1000 ?? 0,
+            erpItemRefId: sheet.erpItemRefId,
+            erpItemRefIdPcs: sheet.erpItemRefIdPcs,
             surfaces: {
               create: sheet.surfaces,
             },
