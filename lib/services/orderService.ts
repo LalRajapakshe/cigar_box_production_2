@@ -1,8 +1,9 @@
+import { API_BASE } from "../apiBase";
 import type { Order, OrderInput } from "../types/order";
 
 export const orderService = {
   async getAll(): Promise<Order[]> {
-    const response = await fetch("/api/orders");
+    const response = await fetch(`${API_BASE}/orders`);
 
     if (!response.ok) {
       throw new Error("Failed to load orders");
@@ -22,7 +23,7 @@ export const orderService = {
   },
 
   async create(input: OrderInput): Promise<Order> {
-    const response = await fetch("/api/orders", {
+    const response = await fetch(`${API_BASE}/orders`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

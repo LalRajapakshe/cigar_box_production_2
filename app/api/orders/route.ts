@@ -48,8 +48,13 @@ export async function GET() {
         boxTypeId: body.boxTypeId,
         boardTypeId: body.boardTypeId,
 
-        quantity: Number(body.quantity),
+        salesOrderDetailId:
+         body.salesOrderDetailId
+        ? Number(body.salesOrderDetailId)
+        : null,
 
+        quantity: Number(body.quantity),
+   
         orderDate: new Date(body.orderDate),
         deliveryDate: new Date(body.deliveryDate),
 

@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import {
+  createPcTransferNote,
+  createWgTransferNote,
+} from "@/lib/services/erpTransferNoteService";
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +20,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const planning = await prisma.productionPlanning.findUnique({
+const planning =
+  await prisma.productionPlanning.findMany({
+    where: {
+      orderId: Number(orderId),
+    },
+
+    include: {
+      parts: true,
+      order: true,
+    },
+
+    orderBy: {
+      id: "desc",
+    },
+  });
+   /* const planning = await prisma.productionPlanning.findUnique({
       where: {
         orderId: Number(orderId),
       },
@@ -24,7 +43,7 @@ export async function GET(request: NextRequest) {
         parts: true,
         order: true,
       },
-    });
+    }); */
 
     return NextResponse.json(planning);
   } catch (error) {
@@ -45,7 +64,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const existing = await prisma.productionPlanning.findUnique({
+/*const existing = await prisma.productionPlanning.findUnique({
       where: {
         orderId: Number(body.orderId),
       },
@@ -53,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     if (existing) {
       return NextResponse.json(existing);
-    }
+    }*/
 //console.log(body.parts[0]);
     const latestPlanning =
       await prisma.productionPlanning.findFirst({
@@ -171,10 +190,12 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
+/*
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
+
+
 
     const updated = await prisma.productionPlanning.update({
       where: {
@@ -222,6 +243,119 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json(
       {
         message: "Failed to update planning status",
+        error: String(error),
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+
+}  */
+export async function PATCH(request: NextRequest) {
+  try {
+
+    const body = await request.json();
+
+    //
+    // COMPLETE ONLY
+    //
+    if (body.status === "COMPLETE") {
+
+      const pcResult =
+        await createPcTransferNote(
+          Number(body.id)
+        );
+
+      if (pcResult <= 0) {
+        return NextResponse.json(
+          {
+            message:
+              `Item transfer failed. ERP returned ${pcResult}`,
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+
+      const wgResult =
+        await createWgTransferNote(
+          Number(body.id)
+        );
+
+      if (wgResult <= 0) {
+        return NextResponse.json(
+          {
+            message:
+              `Item transfer failed. ERP returned ${wgResult}`,
+          },
+          {
+            status: 400,
+          }
+        );
+      }
+    }
+
+    //
+    // ONLY REACH HERE
+    // IF TRANSFERS SUCCEEDED
+    //
+
+    const updated =
+      await prisma.productionPlanning.update({
+        where: {
+          id: Number(body.id),
+        },
+        data: {
+          status: body.status,
+        },
+      });
+
+    let orderStatus = "planned";
+
+    if (body.status === "IN_PRODUCTION") {
+      orderStatus = "inProduction";
+    }
+
+    if (body.status === "COMPLETE") {
+      orderStatus = "completed";
+    }
+
+    await prisma.order.update({
+      where: {
+        id: Number(body.orderId),
+      },
+      data: {
+        status: orderStatus,
+      },
+    });
+
+    await prisma.productionPlanningLog.create({
+      data: {
+        planningId: updated.id,
+        orderId: Number(body.orderId),
+
+        userId: 0,
+
+        status: body.status,
+      },
+    });
+
+    return NextResponse.json(updated);
+
+  } catch (error) {
+
+    console.error(
+      "PATCH /api/planning failed",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        message:
+          "Failed to update planning status",
+        error: String(error),
       },
       {
         status: 500,

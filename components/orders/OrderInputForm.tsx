@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { boardService } from "@/lib/services/boardService";
 import { boxTypeService } from "@/lib/services/boxTypeService";
+import { API_BASE } from "@/lib/apiBase";
 //import { materialService } from "@/lib/services/materialService";
 //import { orderService } from "@/lib/services/orderService";
 //, MaterialDefinition 
@@ -18,6 +19,7 @@ const dangerButtonClassName =
   "rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-100";
 
 const initialForm: OrderFormValues = {
+  salesOrderDetailId: 0,
   boxTypeId: "",
   quantity: 1,
   orderDate: "",
@@ -89,6 +91,10 @@ export default function OrderInputForm() {
   const [boards, setBoards] = useState<BoardDefinition[]>([]);
   //const [materials, setMaterials] = useState<MaterialDefinition[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+
+const [salesOrders, setSalesOrders] = useState<any[]>([]);
+const [nextOrderNo, setNextOrderNo] = useState("");
+
   const [form, setForm] = useState<OrderFormValues>(initialForm);
   const [loading, setLoading] = useState(true);
     const [savingBoard, setSavingBoard] = useState(false); 
@@ -138,11 +144,34 @@ export default function OrderInputForm() {
 const loadData = async () => {
   setLoading(true);
 
-  const [boxTypeData, boardData, orderResponse] = await Promise.all([
-    boxTypeService.getAll(),
-    boardService.getAll(),
-    fetch("/api/orders"),
-  ]);
+const [
+  boxTypeData,
+  boardData,
+  orderResponse,
+  salesOrderResponse,
+  orderNoResponse
+] = await Promise.all([
+  boxTypeService.getAll(),
+  boardService.getAll(),
+  fetch(`${API_BASE}/orders`),
+  fetch(`${API_BASE}/orders/sales-orders`),
+  fetch(`${API_BASE}/orders/next-order-no`)
+]);
+
+const salesOrderData =
+  await salesOrderResponse.json();
+
+const orderNoData =
+  await orderNoResponse.json();
+
+setSalesOrders(salesOrderData);
+setNextOrderNo(orderNoData.orderNo);
+
+ // const [boxTypeData, boardData, orderResponse] = await Promise.all([
+ //   boxTypeService.getAll(),
+ //   boardService.getAll(),
+ //   fetch(`${API_BASE}/orders`),
+ // ]);
 
   const orderData = await orderResponse.json();
 
@@ -190,12 +219,13 @@ try {
 
   if (!selectedBox) return;
 
-  await fetch("/api/orders", {
+  await fetch(`${API_BASE}/orders`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
+      salesOrderDetailId: form.salesOrderDetailId,
       boxTypeId: form.boxTypeId,
       boardTypeId: selectedBox.boardDefinitionId,
       quantity: form.quantity,
@@ -205,6 +235,7 @@ try {
       usdToLkrRate: form.usdToLkrRate,
       lkrRatePerBox: form.lkrRatePerBox,
       status: form.status ?? "PENDING",
+      
     }),
   });
 
@@ -287,9 +318,96 @@ useEffect(() => {
                   Select the production recipe, quantity, due dates, Board Type, and status.
                 </p>
               </div>
+{/* ========================   */}
+<div className="rounded-xl border border-slate-200 bg-white p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    Order No
+  </label>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+  <input
+    value={nextOrderNo}
+    readOnly
+    className={inputClassName}
+  />
+</div>
+ {/* ========================   */}
+
+ 
+               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-slate-200 bg-white p-4">
+ {/* ========================   */}
+<label className="mb-2 block text-sm font-medium text-slate-700">
+  Sales Order
+</label>
+
+<select
+  value={form.salesOrderDetailId ?? ""}
+  onChange={async (e) => {
+
+    const salesOrderId =
+      Number(e.target.value);
+
+    if (!salesOrderId) {
+      return;
+    }
+
+    const response =
+      await fetch(
+        `${API_BASE}/orders/sales-orders/${salesOrderId}`
+      );
+
+    const details =
+      await response.json();
+
+    setForm((prev) => ({
+      ...prev,
+
+      salesOrderDetailId:
+        salesOrderId,
+
+      boxTypeId:
+        details.boxTypeId,
+
+      quantity:
+        details.quantity,
+
+      usdRatePerBox:
+        details.usdRatePerBox,
+    }));
+  }}
+  className={inputClassName}
+>
+  <option value="">
+    Select Sales Order
+  </option>
+
+  {salesOrders.map((item) => (
+    <option
+      key={item.value}
+      value={item.value}
+    >
+      {item.text}
+    </option>
+  ))}
+</select>
+
+<div className="rounded-xl border border-slate-200 bg-white p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    Quantity
+  </label>
+
+  <input
+    type="number"
+    value={form.quantity}
+    readOnly
+    className={inputClassName}
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Loaded automatically from ERP Sales Order.
+  </p>
+</div>
+ {/*}
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Box Type
                   </label>
@@ -300,6 +418,7 @@ useEffect(() => {
                     }
                     className={inputClassName}
                   >
+
                     <option value="">Select box type</option>
                     {boxTypes.map((boxType) => (
                       <option key={boxType.id} value={boxType.id}>
@@ -309,9 +428,10 @@ useEffect(() => {
                   </select>
                   <p className="mt-2 text-xs text-slate-500">
                     Choose the box recipe used for this production order.
-                  </p>
+                  </p>  */}
                 </div>
 
+{/*}
                 <div className="rounded-xl border border-slate-200 bg-white p-4">
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Quantity
@@ -333,7 +453,7 @@ useEffect(() => {
                     Number of finished boxes required for this job ticket.
                   </p>
                 </div>
-
+*/}
                 <div className="rounded-xl border border-slate-200 bg-white p-4">
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Order Date
@@ -367,7 +487,24 @@ useEffect(() => {
                     Requested delivery or production completion date.
                   </p>
                 </div>
+<div className="rounded-xl border border-slate-200 bg-white p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    USD Rate Per Box
+  </label>
 
+  <input
+    type="number"
+    step="0.01"
+    value={form.usdRatePerBox ?? 0}
+    readOnly
+    className={inputClassName}
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Loaded automatically from ERP Sales Order.
+  </p>
+</div>           
+{/*}
 <div className="rounded-xl border border-slate-200 bg-white p-4">
   <label className="mb-2 block text-sm font-medium text-slate-700">
     USD Rate Per Box
@@ -391,6 +528,7 @@ useEffect(() => {
     Export selling rate per finished box in USD.
   </p>
 </div>
+*/}
 
 <div className="rounded-xl border border-slate-200 bg-white p-4">
   <label className="mb-2 block text-sm font-medium text-slate-700">

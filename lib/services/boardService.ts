@@ -2,10 +2,11 @@ import type {
   BoardDefinition,
   BoardDefinitionInput,
 } from "../types/master-data";
+import { API_BASE } from "@/lib/apiBase";
 
 export const boardService = {
 async getAll(): Promise<BoardDefinition[]> {
-  const res = await fetch("/api/master-settings/boards");
+  const res = await fetch(`${API_BASE}/master-settings/boards`);
 
   if (!res.ok) {
     const text = await res.text();
@@ -17,14 +18,14 @@ async getAll(): Promise<BoardDefinition[]> {
 },
 
   async getById(id: string): Promise<BoardDefinition | null> {
-    const res = await fetch(`/api/master-settings/boards/${id}`);
+    const res = await fetch(`${API_BASE}/master-settings/boards/${id}`);
     if (res.status === 404) return null;
     if (!res.ok) throw new Error("Failed to load board.");
     return res.json();
   },
 
   async create(input: BoardDefinitionInput): Promise<BoardDefinition> {
-    const res = await fetch("/api/master-settings/boards", {
+    const res = await fetch(`${API_BASE}/master-settings/boards`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +41,7 @@ async getAll(): Promise<BoardDefinition[]> {
     id: string,
     updates: Partial<BoardDefinitionInput>
   ): Promise<BoardDefinition> {
-    const res = await fetch(`/api/master-settings/boards/${id}`, {
+    const res = await fetch(`${API_BASE}/master-settings/boards/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -53,7 +54,7 @@ async getAll(): Promise<BoardDefinition[]> {
   },
 
   async remove(id: string): Promise<void> {
-    const res = await fetch(`/api/master-settings/boards/${id}`, {
+    const res = await fetch(`${API_BASE}/master-settings/boards/${id}`, {
       method: "DELETE",
     });
 

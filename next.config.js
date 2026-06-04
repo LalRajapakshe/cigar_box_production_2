@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+
+//basePath: "/cb",
+
   // Production optimizations
   reactStrictMode: true,
   swcMinify: true,

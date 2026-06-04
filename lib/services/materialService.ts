@@ -1,14 +1,14 @@
+import { API_BASE } from "@/lib/apiBase";
 import type {
   MaterialDefinition,
   MaterialDefinitionInput,
 } from "../types/master-data";
-
-export const materialService = {
+  export const materialService = {
  async getAll(): Promise<MaterialDefinition[]> {
-  const res = await fetch("/api/master-settings/materials");
+  const res = await fetch(`${API_BASE}/master-settings/materials`);
 
   if (!res.ok) {
-    const text = await res.text();
+    const text = await res.text(); 
     console.error("Materials API failed:", res.status, text);
     throw new Error(`Failed to load materials. Status: ${res.status}. ${text}`);
   }
@@ -23,7 +23,7 @@ export const materialService = {
   },
 
   async create(input: MaterialDefinitionInput): Promise<MaterialDefinition> {
-    const res = await fetch("/api/master-settings/materials", {
+    const res = await fetch(`${API_BASE}/master-settings/materials`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

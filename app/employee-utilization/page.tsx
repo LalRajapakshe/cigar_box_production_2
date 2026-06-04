@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { API_BASE } from "@/lib/apiBase";
 
 import { planningService } from "@/lib/services/planningService";
 import { employeeService } from "@/lib/services/employeeService";
@@ -20,7 +21,7 @@ export default function EmployeeUtilizationPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const planningResponse = await fetch("/api/planning-list");
+        const planningResponse = await fetch(`${API_BASE}/planning-list`);
         const planningData = await planningResponse.json();
 
         const employeeData =

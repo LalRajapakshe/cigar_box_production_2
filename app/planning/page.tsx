@@ -8,6 +8,7 @@ import { orderService } from "@/lib/services/orderService";
 import { generateOrderPlanning } from "@/lib/utils/calculationUtils";
 import type { BoardDefinition, BoxType } from "@/lib/types/master-data";
 import type { Order } from "@/lib/types/order";
+import { API_BASE } from "@/lib/apiBase";
 
 import { planningService } from "@/lib/services/planningService";
 
@@ -30,10 +31,34 @@ export default function PlanningPage() {
    const [pendingStatus, setPendingStatus] = useState("");
    const [savingStatus, setSavingStatus] = useState(false);
 
+   const [remainingQty, setRemainingQty] = useState(0);
+   const [planningQty, setPlanningQty] = useState(0);
+   const [proceeded, setProceeded] = useState(false);
+
+   const [planningRecords, setPlanningRecords] = useState<any[]>([]);
+   const [selectedPlanningId, setSelectedPlanningId] =
+   useState<number | null>(null);
+
    //const [remainingQty, setRemainingQty] = useState(0);
    //const [planningQty, setPlanningQty] = useState(0);
    //const [confirmedOrderId, setConfirmedOrderId] = 
    //                     useState<number | null>(null);
+
+useEffect(() => {
+  const loadPlanningRecords = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/planning/all`);
+
+      const data = await response.json();
+
+      setPlanningRecords(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  void loadPlanningRecords();
+}, []);
 
 
   useEffect(() => {
@@ -47,7 +72,36 @@ export default function PlanningPage() {
         boardService.getAll(),
       ]);
 //console.log("orderData", orderData);
-      setOrders(orderData);
+const filteredOrders = [];
+
+for (const order of orderData) {
+  try {
+    const response = await fetch(
+      `${API_BASE}/planning?orderId=${order.id}`
+    );
+
+    const planningList = await response.json();
+
+    const totalPlanned =
+      planningList.reduce(
+        (sum: number, item: any) =>
+          sum + item.plannedQuantity,
+        0
+      );
+
+    const remaining =
+      order.quantity - totalPlanned;
+
+    if (remaining > 0) {
+      filteredOrders.push(order);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+setOrders(filteredOrders);
+    //  setOrders(orderData);
       setBoxTypes(boxTypeData);
       setBoards(boardData);
 
@@ -81,6 +135,39 @@ export default function PlanningPage() {
   }, [boards, selectedBoxType]);
 
 
+useEffect(() => {
+  if (!selectedOrder) {
+    setRemainingQty(0);
+    return;
+  }
+
+  const loadRemainingQty = async () => {
+    try {
+      const response = await fetch(`${API_BASE}/planning?orderId=${selectedOrder.id}`);
+
+      const planningList = await response.json();
+
+      const totalPlanned =
+        planningList.reduce(
+          (sum: number, item: any) =>
+            sum + item.plannedQuantity,
+          0
+        );
+
+      const remaining =
+        selectedOrder.quantity - totalPlanned;
+
+      setRemainingQty(remaining);
+
+      setPlanningQty(remaining);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  void loadRemainingQty();
+}, [selectedOrder]);
+
 //console.log("selectedOrderId", selectedOrderId);
 //console.log("orders", orders);
 //console.log(
@@ -102,12 +189,11 @@ export default function PlanningPage() {
       boardDefinitionName: selectedBoard?.name ?? "",
 
       originalOrderQuantity: selectedOrder?.quantity ?? 0,
-      
       orderNo: selectedOrder?.orderNo ?? "",
       planningNo: savedPlanning?.planningNo,
 
       plannedProductionQuantity:
-        savedPlanning.plannedQuantity,
+      savedPlanning.plannedQuantity,
 
       parts: savedPlanning.parts,
 
@@ -130,18 +216,29 @@ export default function PlanningPage() {
     };
   }
 
-  if (!selectedOrder || !selectedBoxType || !selectedBoard)
-  {
+ // if (!selectedOrder || !selectedBoxType || !selectedBoard)
+ if (
+  !proceeded ||
+  !selectedOrder ||
+  !selectedBoxType ||
+  !selectedBoard
+) 
+ {
     return null;
   }
 
   return generateOrderPlanning({
-order: selectedOrder,
-    boxType: selectedBoxType,
-    boardDefinition: selectedBoard,
+//order: selectedOrder,
+  order: {
+    ...selectedOrder,
+    quantity: planningQty,
+  },
+   boxType: selectedBoxType,
+   boardDefinition: selectedBoard,
   });
 }, [
-  savedPlanning,
+  proceeded,
+  planningQty,
   selectedOrder,
   selectedBoxType,
   selectedBoard,
@@ -158,8 +255,10 @@ order: selectedOrder,
                 const planning = await planningService.getByOrderId(
                   selectedOrderId
                 );
-
-                setSavedPlanning(planning);
+              // console.log("LOAD PLANNING RESULT =", planning);
+                setSavedPlanning(Array.isArray(planning)
+                       ? planning[0] ?? null
+                        : planning);
 
                 if (planning?.status) {
                   setPlanningStatus(planning.status);
@@ -183,18 +282,50 @@ order: selectedOrder,
         const saved = await planningService.savePlanning(planningResult);
 
         setSavedPlanning(saved);
+
+setProceeded(false);
+
+const response = await fetch(`${API_BASE}/planning?orderId=${selectedOrder?.id}`);
+
+const planningList = await response.json();
+
+const totalPlanned =
+  planningList.reduce(
+    (sum: number, item: any) =>
+      sum + item.plannedQuantity,
+    0
+  );
+
+const remaining =
+  (selectedOrder?.quantity ?? 0) - totalPlanned;
+
+setRemainingQty(remaining);
+setPlanningQty(remaining);
+//if (remaining <= 0) {
+//  setSelectedOrderId(null);
+//}
+
+
         setPlanningStatus(saved.status);
       } catch (error) {
-        console.error(error);
+        //console.error(error);
         alert("Failed to save planning");
       } finally {
         setSavingPlanning(false);
       }
   };
     const handleStatusChange = async (status: string) => {
-      if (!savedPlanning) return;
+      if (!savedPlanning)  {
+  //  console.log("savedPlanning is NULL");
+    return;
+  }
 
+  //console.log("savedPlanning =", savedPlanning);
+  //console.log("savedPlanning.id =", savedPlanning.id);
+  //console.log("savedPlanning.orderId =", savedPlanning.orderId);
+  //alert(`SERVICE: ${savedPlanning.id} | ${savedPlanning.orderId} | ${status}`);
       try {
+    //    console.log("savedPlanning", savedPlanning);
         await planningService.updateStatus(
           savedPlanning.id,
           savedPlanning.orderId,
@@ -217,8 +348,24 @@ order: selectedOrder,
 
           try {
             setSavingStatus(true);
-
             await handleStatusChange(pendingStatus);
+if (!savedPlanning) return;            
+//console.log("AFTER UPDATE savedPlanning =", savedPlanning);            
+setPlanningRecords((prev) =>
+  prev.map((item) =>
+    item.id === savedPlanning.id
+      ? {
+          ...item,
+          status: pendingStatus,
+        }
+      : item
+  )
+);
+//console.log("savedPlanning =", savedPlanning);
+//console.log("savedPlanning.id =", savedPlanning.id);
+//console.log("planningRecords =", planningRecords);
+
+alert("Status updated successfully");           
           } finally {
             setSavingStatus(false);
           }
@@ -303,7 +450,11 @@ order: selectedOrder,
                   </label>
                   <select
                     value={selectedOrderId ?? ""}
-                    onChange={(e) => setSelectedOrderId(Number(e.target.value))}
+                    onChange={(e) => {setSelectedOrderId(Number(e.target.value))
+                    setProceeded(false);
+                    setSelectedPlanningId(null);
+                    setSavedPlanning(null);
+                    }}
                     className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
                   >
                     {orders.map((order) => {
@@ -342,6 +493,91 @@ order: selectedOrder,
             )}
           </div>
 
+<div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+  <div>
+    <label className="mb-2 block text-sm font-medium text-slate-700">
+      Remaining Quantity
+    </label>
+
+    <div className="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2.5 text-sm font-semibold text-slate-900">
+      {remainingQty}
+    </div>
+  </div>
+
+  <div>
+    <label className="mb-2 block text-sm font-medium text-slate-700">
+      Planning Quantity
+    </label>
+
+    <input
+      type="number"
+      min={1}
+      max={remainingQty}
+      value={planningQty}
+      onChange={(e) =>
+        setPlanningQty(Number(e.target.value))
+      }
+      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm"
+    />
+  </div>
+
+  <div className="flex items-end">
+    <button
+      type="button"
+      onClick={() => setProceeded(true)}
+      disabled={
+        planningQty <= 0 ||
+        planningQty > remainingQty
+      }
+      className="rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+    >
+      Proceed
+    </button>
+  </div>
+</div>          
+
+<div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+  <div className="mb-4 text-lg font-semibold text-slate-800">
+    Existing Planning Records
+  </div>
+
+  <select
+    value={selectedPlanningId ?? ""}
+ onChange={(e) => {
+  const planningId = Number(e.target.value);
+
+  setSelectedPlanningId(planningId);
+
+  const selected = planningRecords.find(
+    (p) => p.id === planningId
+  );
+
+  if (selected) {
+
+    //console.log("SELECTED PLANNING =", selected);
+ 
+    setSavedPlanning(selected);
+     setSelectedOrderId(selected.orderId);
+
+    setPlanningStatus(selected.status);
+
+    setPendingStatus(selected.status);
+
+    setProceeded(true);
+  }
+}}
+    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm"
+  >
+    <option value="">Select Planning</option>
+
+    {planningRecords.map((planning) => (
+      <option key={planning.id} value={planning.id}>
+        {planning.planningNo} | {planning.order?.orderNo} |
+        {planning.status}
+      </option>
+    ))}
+  </select>
+</div>
            {planningResult ? (
             <div className="space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4">
@@ -355,44 +591,44 @@ order: selectedOrder,
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  {savedPlanning ? (
-                     <>
-                    <select
-                      value={pendingStatus}
-                      onChange={(e) => setPendingStatus(e.target.value)}
-                      className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm"
-                    >
-                      <option value="PLANNING">Planning</option>
-                      <option value="IN_PRODUCTION">In Production</option>
-                      <option value="COMPLETE">Complete</option>
-                      <option value="REVERSE">Reverse</option>
-                    </select>
-                    
-                      <button
-                        onClick={handleSaveStatus}
-                        disabled={
-                          savingStatus ||
-                          pendingStatus === planningStatus
-                        }
-                        className="rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
-                      >
-                        {savingStatus ? "Saving..." : "Save Status"}
-                      </button>
-                      </>
-                  ) : (
-                    <button
-                      onClick={handleSavePlanning}
-                      disabled={savingPlanning}
-                      className="rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
-                    >
-                      {savingPlanning ? "Saving..." : "Save Planning"}
-                    </button>
-                  )}
-                </div>
-              </div>
+<div className="flex items-center gap-3">
 
-              <OrderPlanningComponent result={planningResult} />
+  {!selectedPlanningId ? (
+    <button
+      onClick={handleSavePlanning}
+      disabled={!planningResult || savingPlanning}
+      className="rounded-xl bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-50"
+    >
+      {savingPlanning ? "Saving..." : "Save Planning"}
+    </button>
+  ) : (
+    <>
+      <select
+        value={pendingStatus}
+        onChange={(e) => setPendingStatus(e.target.value)}
+        className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm"
+      >
+        <option value="PLANNING">Planning</option>
+        <option value="IN_PRODUCTION">In Production</option>
+        <option value="COMPLETE">Complete</option>
+        <option value="REVERSE">Reverse</option>
+      </select>
+
+      <button
+        onClick={handleSaveStatus}
+        disabled={savingStatus}
+        className="rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700 disabled:opacity-50"
+      >
+        {savingStatus ? "Saving..." : "Save Status"}
+      </button>
+    </>
+  )}
+</div>
+           </div>
+              <OrderPlanningComponent key={
+                                selectedPlanningId ??
+                    `${selectedOrderId}-${planningQty}`}
+                     result={planningResult} />
             </div>
           ) : !loading && orders.length > 0 ? (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">

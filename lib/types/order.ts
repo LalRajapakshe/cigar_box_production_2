@@ -43,4 +43,5 @@ export interface OrderFormValues {
   usdRatePerBox?: number;
   usdToLkrRate?: number;
   lkrRatePerBox?: number;
+  salesOrderDetailId?: number;
 }

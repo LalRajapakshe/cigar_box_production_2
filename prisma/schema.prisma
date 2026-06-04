@@ -110,22 +110,23 @@ model Order {
   lkrRatePerBox Float?
 
   usdToLkrRate Float?
+  
+  salesOrderDetailId Int?
 
   boxType BoxType @relation(fields: [boxTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   boardType BoardDefinition @relation(fields: [boardTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  planning ProductionPlanning?
+  plannings ProductionPlanning[]
 
   @@map("Orders")
 }
-
 model ProductionPlanning {
   id Int @id @default(autoincrement())
 
   planningNo String? @unique
 
-  orderId Int 
+  orderId Int
 
   plannedQuantity Int
 

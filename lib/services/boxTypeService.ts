@@ -1,8 +1,9 @@
 import type { BoxType, BoxTypeInput } from "../types/master-data";
+import { API_BASE } from "@/lib/apiBase";
 
 export const boxTypeService = {
   async getAll(): Promise<BoxType[]> {
-    const res = await fetch("/api/master-settings/box-types");
+    const res = await fetch(`${API_BASE}/master-settings/box-types`);
 
     if (!res.ok) {
       const text = await res.text();
@@ -14,7 +15,7 @@ export const boxTypeService = {
   },
 
   async getById(id: string): Promise<BoxType | null> {
-    const res = await fetch(`/api/master-settings/box-types/${id}`);
+    const res = await fetch(`${API_BASE}/master-settings/box-types/${id}`);
 
     if (res.status === 404) return null;
 
@@ -28,7 +29,7 @@ export const boxTypeService = {
   },
 
   async create(input: BoxTypeInput): Promise<BoxType> {
-    const res = await fetch("/api/master-settings/box-types", {
+    const res = await fetch(`${API_BASE}/master-settings/box-types`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -46,7 +47,7 @@ export const boxTypeService = {
   },
 
   async update(id: string, updates: Partial<BoxTypeInput>): Promise<BoxType> {
-    const res = await fetch(`/api/master-settings/box-types/${id}`, {
+    const res = await fetch(`${API_BASE}/master-settings/box-types/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -64,7 +65,7 @@ export const boxTypeService = {
   },
 
   async remove(id: string): Promise<void> {
-    const res = await fetch(`/api/master-settings/box-types/${id}`, {
+    const res = await fetch(`${API_BASE}/master-settings/box-types/${id}`, {
       method: "DELETE",
     });
 

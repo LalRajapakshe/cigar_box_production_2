@@ -12,6 +12,35 @@ const reportGroups = [
         name: "Production Planning Report",
         href: "/cigar-box-reports/cigar-box/production-planning",
       },
+      {
+      name: "Board Balance Report",
+      href: "/cigar-b-rpt-board-balance",
+    },
+
+    {
+      name: "Board Issued for Jobs",
+      href: "/cigar-b-rpt-board-issued-jobs",
+    },
+
+    {
+      name: "Board Forecast Summary",
+      href: "/cigar-b-rpt-board-forecast-summary",
+    },
+
+    {
+      name: "Sanding Outside Pending Job Status",
+      href: "/cigar-b-rpt-sanding-outside-pending-job-status",
+    },
+
+    {
+      name: "Sanding Outside Unchecked",
+      href: "/cigar-b-rpt-sanding-outside-unchecked",
+    },
+
+    {
+      name: "Sanding Outside Ready for Payments",
+      href: "/cigar-b-rpt-sanding-outside-ready-payments",
+    },
     ],
   },
 
