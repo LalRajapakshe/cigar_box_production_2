@@ -3,3 +3,24 @@ node_modules
 .env
 
 /generated/prisma
+
+# Next.js
+.next/
+
+# Node
+node_modules/
+
+# Build output
+out/
+
+# Archives
+*.zip
+*.rar
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
