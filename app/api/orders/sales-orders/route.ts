@@ -11,9 +11,9 @@ export async function GET() {
         from PO_SO_DOC_HEADER_W_A h
         inner join PO_SO_DOC_DETAIL_W_A d
             on h.PO_SO_HDR_ID = d.PO_SO_DET_HEADER_ID
-        where d.PO_SO_REM_QTY > 0
-        order by h.PO_SO_DOC_NO desc
-      `);
+        where d.PO_SO_REM_QTY > 0 and d.PO_SO_DET_ID not in 
+		(select salesOrderDetailId from [Orders] )
+        order by h.PO_SO_DOC_NO desc `);
 
     return NextResponse.json(rows);
   } catch (error) {

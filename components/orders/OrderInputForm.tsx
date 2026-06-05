@@ -92,6 +92,20 @@ export default function OrderInputForm() {
   //const [materials, setMaterials] = useState<MaterialDefinition[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
 
+  {/*-------------------------*/}
+const [page, setPage] = useState(1);
+
+const pageSize = 10;
+
+const pagedOrders = orders.slice(
+  (page - 1) * pageSize,
+  page * pageSize
+);
+
+const totalPages = Math.ceil(
+  orders.length / pageSize
+);
+{/*-------------------------*/}
 const [salesOrders, setSalesOrders] = useState<any[]>([]);
 const [nextOrderNo, setNextOrderNo] = useState("");
 
@@ -257,7 +271,53 @@ const handleDelete = async (id: string) => {
 
   await loadData();
 };
+{/*----------------------------*/}
+<div className="rounded-xl border border-slate-200 bg-white p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    USD → LKR Rate
+  </label>
 
+  <input
+    type="number"
+    step="0.01"
+    value={form.usdToLkrRate ?? 0}
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        usdToLkrRate: parseNumber(e.target.value),
+      }))
+    }
+    className={inputClassName}
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Exchange rate entered by user.
+  </p>
+</div>
+{/*------------------------------*/}
+useEffect(() => {
+  const lkrRate =
+    (form.usdRatePerBox ?? 0) *
+    (form.usdToLkrRate ?? 0);
+
+  setForm((prev) => {
+    if (prev.lkrRatePerBox === lkrRate) {
+      return prev;
+    }
+
+    return {
+      ...prev,
+      lkrRatePerBox: Number(
+        lkrRate.toFixed(2)
+      ),
+    };
+  });
+}, [
+  form.usdRatePerBox,
+  form.usdToLkrRate,
+]);
+
+{/*}
 useEffect(() => {
   const usdRate = form.usdRatePerBox ?? 0;
 
@@ -271,7 +331,7 @@ useEffect(() => {
     ),
   }));
 }, [form.usdRatePerBox]);
-
+*/}
   return (
     <div className="space-y-8">
       <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
@@ -529,7 +589,30 @@ useEffect(() => {
   </p>
 </div>
 */}
+<div className="rounded-xl border border-slate-200 bg-white p-4">
+  <label className="mb-2 block text-sm font-medium text-slate-700">
+    USD → LKR Rate
+  </label>
 
+  <input
+    type="number"
+    step="0.01"
+    value={form.usdToLkrRate ?? 0}
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        usdToLkrRate: parseNumber(e.target.value),
+      }))
+    }
+    className={inputClassName}
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Exchange rate entered by user.
+  </p>
+</div>
+
+{/*-----------------------------*/}
 <div className="rounded-xl border border-slate-200 bg-white p-4">
   <label className="mb-2 block text-sm font-medium text-slate-700">
     LKR Rate Per Box
@@ -731,90 +814,95 @@ useEffect(() => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-            {orders.map((order) => {
-              const orderBoxType =
-                boxTypes.find((boxType) => boxType.id === order.boxTypeId) ?? null;
-              const orderBoard = orderBoxType
-                ? boards.find((board) => board.id === orderBoxType.boardDefinitionId) ?? null
-                : null;
-              //const orderMaterial =
-              //  materials.find((material) => material.id === order.materialOverrideId) ?? null;
+<div className="overflow-x-auto">
+  <table className="min-w-full border border-slate-200 text-sm">
+    <thead className="bg-slate-100">
+      <tr>
+        <th className="p-2">Order No</th>
+        <th className="p-2">Sales Order</th>
+        <th className="p-2">Cigar</th>
+        <th className="p-2">Product</th>
+        <th className="p-2">Box Type</th>
+        <th className="p-2">Print Info</th>
+        <th className="p-2">Qty</th>
+        <th className="p-2">Order Date</th>
+        <th className="p-2">Delivery Date</th>
+        <th className="p-2">USD Rate</th>
+        <th className="p-2">LKR Rate</th>
+        <th className="p-2">USD Amount</th>
+        <th className="p-2">LKR Amount</th>
+        <th className="p-2">Status</th>
+        <th className="p-2">Action</th>
+      </tr>
+    </thead>
 
-              return (
-                <div
-                  key={order.id}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-5"
-                >
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div>
-                      <div className="flex flex-wrap items-center gap-3">
-                        <h4 className="text-lg font-semibold text-slate-900">
-                          {orderBoxType?.name ?? "Unknown Box Type"}
-                        </h4>
-                        <span className={getStatusClassName(order.status)}>
-                          {formatStatusLabel(order.status)}
-                        </span>
-                      </div>
+    <tbody>
+      {pagedOrders.map((order: any) => (
+        <tr
+          key={order.id}
+          className="border-t border-slate-200"
+        >
+          <td className="p-2">{order.orderNo}</td>
+          <td className="p-2">{order.salesOrder}</td>
+          <td className="p-2">{order.cigar}</td>
+          <td className="p-2">{order.product}</td>
+          <td className="p-2">{order.boxType}</td>
+          <td className="p-2">{order.printInfo}</td>
+          <td className="p-2">{order.quantity}</td>
+          <td className="p-2">{order.orderDate}</td>
+          <td className="p-2">{order.deliveryDate}</td>
+          <td className="p-2">{order.usdRatePerBox}</td>
+          <td className="p-2">
+  {Number(order.lkrRate ?? 0).toFixed(2)}
+</td>
+       <td className="p-2">
+  {Number(order.usdAmount ?? 0).toFixed(2)}
+</td>
 
-                      <p className="mt-2 text-sm text-slate-500">
-                        Delivery Date: {order.deliveryDate}
-                      </p>
-                    </div>
+<td className="p-2">
+  {Number(order.lkrAmount ?? 0).toFixed(2)}
+</td>   <td className="p-2">{order.usdAmount}</td>
+          <td className="p-2">{order.lkrAmount}</td>
+          <td className="p-2">{order.status}</td>
 
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(order.id)}
-                      className={dangerButtonClassName}
-                    >
-                      Delete
-                    </button>
-                  </div>
+          <td className="p-2">
+            <button
+              type="button"
+              onClick={() => handleDelete(order.id)}
+              className={dangerButtonClassName}
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
-                  <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-wide text-slate-500">
-                        Quantity
-                      </div>
-                      <div className="mt-2 font-medium text-slate-900">
-                        {order.quantity}
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-wide text-slate-500">
-                        Order Date
-                      </div>
-                      <div className="mt-2 font-medium text-slate-900">
-                        {order.orderDate}
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-wide text-slate-500">
-                        Board
-                      </div>
-                      <div className="mt-2 font-medium text-slate-900">
-                        {orderBoard?.name ?? "-"}
-                      </div>
-                    </div>
-
-
-
-                    <div className="rounded-xl border border-slate-200 bg-white p-4 md:col-span-2">
-                      <div className="text-xs uppercase tracking-wide text-slate-500">
-                        Notes
-                      </div>
-                      <div className="mt-2 font-medium text-slate-900">
-                        {order.notes ?? "-"}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         )}
+<div className="mt-4 flex items-center justify-center gap-4">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="secondary-btn"
+  >
+    Previous
+  </button>
+
+  <span>
+    Page {page} of {totalPages}
+  </span>
+
+  <button
+    disabled={page === totalPages}
+    onClick={() => setPage(page + 1)}
+    className="secondary-btn"
+  >
+    Next
+  </button>
+</div>
+
       </section>
     </div>
   );
