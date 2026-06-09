@@ -1,10 +1,11 @@
+import { API_BASE } from "../apiBase";
+
 export const boardBalanceReportService = {
   async getReport(
-    fromDate: string,
-    toDate: string
+
   ) {
     const response = await fetch(
-      `/api/cigar-b-rpt-board-balance?fromDate=${fromDate}&toDate=${toDate}`
+      `${API_BASE}/cigar-b-rpt-board-balance`
     );
 
     if (!response.ok) {

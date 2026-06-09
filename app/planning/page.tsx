@@ -103,6 +103,7 @@ for (const order of orderData) {
 setOrders(filteredOrders);
     //  setOrders(orderData);
       setBoxTypes(boxTypeData);
+
       setBoards(boardData);
 
       if (orderData.length > 0) {
@@ -123,6 +124,7 @@ setOrders(filteredOrders);
      )?? null,
     [orders, selectedOrderId]
   );
+
 
   const selectedBoxType = useMemo(() => {
     if (!selectedOrder) return null;
@@ -146,7 +148,6 @@ useEffect(() => {
       const response = await fetch(`${API_BASE}/planning?orderId=${selectedOrder.id}`);
 
       const planningList = await response.json();
-
       const totalPlanned =
         planningList.reduce(
           (sum: number, item: any) =>
@@ -274,7 +275,11 @@ useEffect(() => {
 
 
   const handleSavePlanning = async () => {
-      if (!planningResult) return;
+   // alert("Save clicked");
+      if (!planningResult) {
+     //   alert("No planning data to save");
+        return;
+      }
 
       try {
         setSavingPlanning(true);
@@ -298,7 +303,22 @@ const totalPlanned =
 
 const remaining =
   (selectedOrder?.quantity ?? 0) - totalPlanned;
+/*
+console.log(
+  "Order Qty:",
+  selectedOrder?.quantity
+);
 
+console.log(
+  "Total Planned:",
+  totalPlanned
+);
+
+console.log(
+  "Remaining:",
+  remaining
+);
+*/
 setRemainingQty(remaining);
 setPlanningQty(remaining);
 //if (remaining <= 0) {

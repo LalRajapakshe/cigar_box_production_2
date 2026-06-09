@@ -818,15 +818,22 @@ useEffect(() => {
   <table className="min-w-full border border-slate-200 text-sm">
     <thead className="bg-slate-100">
       <tr>
-        <th className="p-2">Order No</th>
-        <th className="p-2">Sales Order</th>
+        <th className="p-2 min-w-[130px] whitespace-nowrap">
+           Order No  </th>
+        <th className="p-2 min-w-[160px] whitespace-nowrap">
+          Sales Order
+        </th>
         <th className="p-2">Cigar</th>
         <th className="p-2">Product</th>
         <th className="p-2">Box Type</th>
-        <th className="p-2">Print Info</th>
+        <th className="p-2 min-w-[130px] whitespace-nowrap">Print Info </th>
         <th className="p-2">Qty</th>
-        <th className="p-2">Order Date</th>
-        <th className="p-2">Delivery Date</th>
+        <th className="p-2 min-w-[120px] whitespace-nowrap">
+            Order Date
+          </th>
+        <th className="p-2 min-w-[120px] whitespace-nowrap">
+              Delivery Date
+            </th>
         <th className="p-2">USD Rate</th>
         <th className="p-2">LKR Rate</th>
         <th className="p-2">USD Amount</th>
@@ -848,22 +855,29 @@ useEffect(() => {
           <td className="p-2">{order.product}</td>
           <td className="p-2">{order.boxType}</td>
           <td className="p-2">{order.printInfo}</td>
-          <td className="p-2">{order.quantity}</td>
+          <td className="p-2 text-right">
+            {Number(order.quantity).toLocaleString()}
+          </td>
           <td className="p-2">{order.orderDate}</td>
           <td className="p-2">{order.deliveryDate}</td>
-          <td className="p-2">{order.usdRatePerBox}</td>
+         <td className="p-2 text-right">
+            {Number(order.usdRatePerBox ?? 0).toFixed(2)}
+          </td>
           <td className="p-2">
-  {Number(order.lkrRate ?? 0).toFixed(2)}
-</td>
+          {Number(order.lkrRate ?? 0).toFixed(2)}
+        </td>
        <td className="p-2">
-  {Number(order.usdAmount ?? 0).toFixed(2)}
-</td>
+            {Number(order.usdAmount ?? 0).toFixed(2)}
+          </td>
 
 <td className="p-2">
   {Number(order.lkrAmount ?? 0).toFixed(2)}
-</td>   <td className="p-2">{order.usdAmount}</td>
-          <td className="p-2">{order.lkrAmount}</td>
-          <td className="p-2">{order.status}</td>
+</td>   
+          <td className="p-2 text-center">
+            <span className={getStatusClassName(order.status)}>
+              {order.status}
+            </span>
+            </td>
 
           <td className="p-2">
             <button

@@ -14,6 +14,9 @@ const orders: any[] =
       o.id,
       o.orderNo,
 
+  o.boxTypeId,
+  o.boardTypeId,
+
       h.PO_SO_DOC_NO as salesOrder,
 
       h.PO_SO_DESCRIPTION as cigar,
@@ -28,7 +31,7 @@ const orders: any[] =
           from SurfaceSpec S
           inner join BoxTypeSheet T
             on T.id = S.boxTypeSheetId
-          where T.boxTypeId = B.id
+          where T.boxTypeId = B.id and s.requiresPrinting = 'True'
       )
       as varchar(10))
       + ' Colors'

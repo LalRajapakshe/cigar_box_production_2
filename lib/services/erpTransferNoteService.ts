@@ -64,7 +64,7 @@ const itemId =  Number(headerRows[0].itemId);
 const unitId =  Number(headerRows[0].unitId);
 const qty =  Number(headerRows[0].Qty);
 //const date =  new Date(headerRows[0].date);
-const reference = 'CPCP-' + headerRows[0].reference;
+const reference = 'ABCD-' + headerRows[0].reference;
 const fgnRef =  headerRows[0].fgnRef;
 const formattedDate =  new Date(headerRows[0].date).toLocaleDateString("en-US");
 
@@ -103,48 +103,57 @@ export async function createWgTransferNote(
   planningId: number
 ) : Promise<number> {
 
-  //console.log(
-  //  "createWgTransferNote",
- //   planningId
- // );
- const itemRows: any[]  =
+  console.log(
+    "createWgTransferNote",
+    planningId
+  );
+ const headerRows: any[]  =
  await prisma.$queryRawUnsafe(`
-declare @table_2 table(itemId int, unitId int, quantity decimal(18,2), cost decimal(18,2),
-date  datetime, reference nvarchar(255), fgnRef int)
+declare @table_2 table(date  datetime, reference nvarchar(255), fgnRef int)
 insert into @table_2
-select 897 as itemId, 1 as unitId, sum(D.totalPolyethyleneRequirementKg) as Qty, 0,
-p.createdAt as date, p.planningNo as reference,  p.Id as fgnRef
-from [ProductionPlanning] p  inner join  [ProductionPlanningPart] D on
-P.id = D.planningId where p.id =${planningId}
-group by p.createdAt, p.planningNo, p.Id
-update T set T.cost = I.IT_MST_COST_PRICE
-from @table_2 T inner join ITEM_MASTER I on T.itemId = i.IT_MST_CODE 
+select 
+H.createdAt as date, H.planningNo as reference,  H.Id as fgnRef
+from  [ProductionPlanning] H 
+where h.id =${planningId}
 select * from @table_2
 `);
-if (!itemRows.length) {
+if (!headerRows.length) {
   throw new Error(
     `WG transfer data not found for planning ${planningId}`
   );
 }
 
-//console.log("WG DATA =", itemRows);
+console.log("WG HDR DATA =", headerRows);
+const reference = 'WG-' + headerRows[0].reference;
+const fgnRef =  headerRows[0].fgnRef;
+const formattedDate =  new Date(headerRows[0].date).toLocaleDateString("en-US");
 
-const itemId =  Number(itemRows[0].itemId);
-const unitId =  Number(itemRows[0].unitId);
-const qty =  Number(itemRows[0].quantity);
-const cost =  Number(itemRows[0].cost);
-const reference = 'WG-' + itemRows[0].reference;
-const fgnRef =  itemRows[0].fgnRef;
-const formattedDate =  new Date(itemRows[0].date).toLocaleDateString("en-US");
-
+{/*} insert into @p22 values(
+      1,  0,  ${itemId},  ${unitId},  ${qty},  N'N/A',   0,
+      ${cost},  0,  NULL,  0,  N'Default',  N'REQU',  0,
+      NULL,  0,  NULL,  NULL,  N'150', 0, N'-None-',  0 ) */}
 
 const resultRows: any[] =  await prisma.$queryRawUnsafe(`
     declare @p22 dbo.STK_Common_DetailUdt
 
-    insert into @p22 values(
-      1,  0,  ${itemId},  ${unitId},  ${qty},  N'N/A',   0,
-      ${cost},  0,  NULL,  0,  N'Default',  N'REQU',  0,
-      NULL,  0,  NULL,  NULL,  N'150', 0, N'-None-',  0 )
+ declare @Cost_P decimal(18,2); 
+set @Cost_P = isnull((select I.IT_MST_COST_PRICE from ITEM_MASTER I where i.IT_MST_CODE = 897),0);
+
+insert into @p22 
+select ROW_NUMBER() OVER (ORDER BY H.Id) AS RowNo, 0,
+ i.IT_MST_CODE, i.IT_MST_DEFAULT_MES_UNT, p.totalPolyethyleneRequirementKg ,  N'N/A', 0, @Cost_P,
+0,  NULL,  0,  N'Default',  N'REQU',  0,
+NULL,  0,  NULL,  NULL,  N'150', 0, N'-None-',  0
+from  [ProductionPlanning] H inner join
+ProductionPlanningPart P on H.[id] = p.[planningId]
+inner join Orders O
+on h.orderId = O.id
+inner join BoxType B
+on B.id = O.boxTypeId 
+inner join BoxTypeSheet SH on SH.boxTypeId = B.id and SH.sheetKey = p.sheetKey
+inner join ITEM_MASTER I on i.IT_MST_CODE = SH.erpItemRefId 
+where h.id =${planningId}
+    
 
   declare @p23 int
 set @p23=0
@@ -162,9 +171,9 @@ const result =
     resultRows[0]?.ERP_RESULT ?? 0
   );
 
-//console.log(
-//  "WG TRANSFER RESULT =",  result
-//);
+console.log(
+  "WG TRANSFER RESULT =",  result
+);
 
   return result;
 

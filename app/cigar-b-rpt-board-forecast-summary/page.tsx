@@ -41,6 +41,9 @@ export default function BoardForecastSummaryPage() {
       setLoading(false);
     }
   };
+  const handlePrint = () => {
+  window.print();
+};
 
   return (
     <div className="page-shell">
@@ -101,7 +104,12 @@ export default function BoardForecastSummaryPage() {
                   : "Load Report"}
               </button>
             </div>
-
+   <button
+  onClick={handlePrint}
+  className="rounded-xl bg-green-700 px-4 py-2 text-white"
+>
+  Print
+</button> 
           </div>
 
           <div className="overflow-auto rounded-2xl border border-slate-200">

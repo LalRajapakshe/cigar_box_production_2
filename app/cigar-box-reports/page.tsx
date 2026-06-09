@@ -6,7 +6,7 @@ const reportGroups = [
     reports: [
       {
         name: "Box Type Master Report",
-        href: "/cigar-box-reports/cigar-box/box-type-master",
+        href: "/cigar-b-rpt-box-type-master",
       },
       {
         name: "Production Planning Report",
@@ -40,6 +40,19 @@ const reportGroups = [
     {
       name: "Sanding Outside Ready for Payments",
       href: "/cigar-b-rpt-sanding-outside-ready-payments",
+    },
+
+       {
+      name: "Monthly Job Data",
+      href: "/cigar-b-rpt-monthly-job-data",
+    },
+    {
+      name: "UTP Item Order Of The Year",
+      href: "/cigar-b-rpt-utp-item-order-year",
+    },
+        {
+      name: "Production Pending Orders",
+      href: "/cigar-b-rpt-production-pending-orders",
     },
     ],
   },

@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
           o.[quantity] as remainQty,
 
-          b.name as itemName,
+          bd.name as itemName,
 
           bd.name as boardType,
 
@@ -39,10 +39,10 @@ export async function GET(request: Request) {
           on b.id = o.boxTypeId
 
         inner join [BoardDefinition] bd
-          on bd.id = o.boardDefinitionId
+          on bd.id = b.boardDefinitionId
 
         where
-          h.status <> 'COMPLETE'
+          h.status = 'PLANNING'
 
           and cast(o.[orderDate] as datetime)
             >= cast('${fromDate}' as datetime)

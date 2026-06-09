@@ -7,11 +7,7 @@ from "@/lib/services/boardBalanceReportService";
 
 export default function BoardBalanceReportPage() {
 
-  const [fromDate, setFromDate] =
-    useState("");
-
-  const [toDate, setToDate] =
-    useState("");
+  
 
   const [loading, setLoading] =
     useState(false);
@@ -23,24 +19,23 @@ export default function BoardBalanceReportPage() {
     try {
       setLoading(true);
 
-      const data =
-        await boardBalanceReportService.getReport(
-          fromDate,
-          toDate
-        );
+    const data =
+      await boardBalanceReportService.getReport();
 
-      setRows(data);
-    } catch (error) {
-      console.error(error);
+    setRows(data);
+  } catch (error) {
+    console.error(error);
 
-      alert(
-        "Failed to load report"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    alert("Failed to load report");
+  } finally {
+    setLoading(false);
+  }
+};
 
+const handlePrint = () => {
+  window.print();
+};
+  
   return (
     <div className="page-shell">
       <div className="page-container">
@@ -60,35 +55,6 @@ export default function BoardBalanceReportPage() {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                From Date
-              </label>
-
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) =>
-                  setFromDate(e.target.value)
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                To Date
-              </label>
-
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) =>
-                  setToDate(e.target.value)
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
-              />
-            </div>
 
             <div className="flex items-end">
               <button
@@ -101,7 +67,12 @@ export default function BoardBalanceReportPage() {
                   : "Load Report"}
               </button>
             </div>
-
+   <button
+  onClick={handlePrint}
+  className="rounded-xl bg-green-700 px-4 py-2 text-white"
+>
+  Print
+</button>  
           </div>
 
           <div className="overflow-auto rounded-2xl border border-slate-200">
@@ -113,6 +84,10 @@ export default function BoardBalanceReportPage() {
                   <th className="px-4 py-3 text-left">
                     Board ID
                   </th>
+
+                  <th className="px-4 py-3 text-left">
+                    Board Code
+                  </th>                  
 
                   <th className="px-4 py-3 text-left">
                     Board Name
@@ -144,15 +119,18 @@ export default function BoardBalanceReportPage() {
                     </td>
 
                     <td className="px-4 py-3">
-                      {row.itemName}
+                      {row.itemAlias}
                     </td>
-
-                    <td className="px-4 py-3 text-right">
-                      {row.forecastQty}
+                    <td className="px-4 py-3">
+                      {row.itemDescription}
                     </td>
 
                     <td className="px-4 py-3 text-right">
                       {row.actualBalance}
+                    </td>
+
+                    <td className="px-4 py-3 text-right">
+                      {row.forecastQty}
                     </td>
 
                     <td className="px-4 py-3 text-right font-semibold">
@@ -172,4 +150,5 @@ export default function BoardBalanceReportPage() {
       </div>
     </div>
   );
-}
+
+    }

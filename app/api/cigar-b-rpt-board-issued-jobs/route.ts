@@ -14,46 +14,62 @@ export async function GET(request: Request) {
 
     const result: any[] =
       await prisma.$queryRawUnsafe(`
-        select
-          h.[planningNo] as planningNo,
+    select
+    s.PO_SO_DOC_NO as salesOrderNo,
 
-          o.[orderNo] as orderNo,
+    o.orderDate as orderDate,
 
-          o.[orderDate] as orderDate,
+    o.orderNo as jobNo,
 
-          b.name as itemName
+    im.IT_MST_DESCRIPTION as boardName,
 
-        from [Orders] o
+    o.quantity as quantity
 
-        inner join [ProductionPlanning] h
-          on o.[id] = h.[orderId]
+FROM STOCK_LEDGER_HEADER_W_A H
 
-        inner join [BoxType] b
-          on b.id = o.boxTypeId
+INNER JOIN STOCK_LEDGER_POSTING_W_A P
+    ON H.STK_HDR_DOC_ID = P.STK_DET_HEADER_ID
 
-        where
-          cast(o.[orderDate] as datetime)
-            >= cast('${fromDate}' as datetime)
+INNER JOIN ITEM_MASTER IM
+    ON IM.IT_MST_CODE = P.STK_PST_ITEM_ID
 
-          and cast(o.[orderDate] as datetime)
-            <= cast('${toDate}' as datetime)
+INNER JOIN STOCK_LEDGER_HEADER_W_A_INF I
+    ON I.STK_HDR_DOC_LH_ID = H.STK_HDR_DOC_ID
 
-        order by
-          o.[orderDate] desc
+INNER JOIN ProductionPlanning R
+    ON I.STK_HDR_INF_LH_1 = R.id
+
+INNER JOIN Orders O
+    ON O.id = R.orderId
+
+LEFT JOIN PO_SO_DOC_DETAIL_W_A D
+    ON D.PO_SO_DET_ID = O.salesOrderDetailId
+
+LEFT JOIN PO_SO_DOC_HEADER_W_A S
+    ON S.PO_SO_HDR_ID = D.PO_SO_DET_HEADER_ID
+
+WHERE
+    H.STK_HDR_DOC_TYPE = 'TRAN'
+    AND H.STK_HDR_TXN_TYPE = 'D87'
+    AND IM.IT_MST_GRP_CODE = 13
+
+    AND CAST(H.STK_HDR_DOC_DATE AS DATETIME)
+        >= CAST('${fromDate}' AS DATETIME)
+
+    AND CAST(H.STK_HDR_DOC_DATE AS DATETIME)
+        <= CAST('${toDate}' AS DATETIME)
+
+ORDER BY
+    H.STK_HDR_DOC_DATE DESC
       `);
 
-    const mapped = result.map((item) => ({
-      orderNo: item.orderNo,
-
-      orderDate: item.orderDate,
-
-      itemName: item.itemName,
-
-      planningNo: item.planningNo,
-
-      issuedQty:
-        Math.floor(Math.random() * 500) + 1,
-    }));
+const mapped = result.map((row: any) => ({
+  salesOrderNo: row.salesOrderNo,
+  orderDate: row.orderDate,
+  jobNo: row.jobNo,
+  boardName: row.boardName,
+  quantity: Number(row.quantity ?? 0),
+}));
 
     return NextResponse.json(mapped);
   } catch (error) {

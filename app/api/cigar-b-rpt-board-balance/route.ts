@@ -3,64 +3,81 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-
-    const fromDate =
-      searchParams.get("fromDate");
-
-    const toDate =
-      searchParams.get("toDate");
 
     const result: any[] =
       await prisma.$queryRawUnsafe(`
-        select
-          p.STK_PST_ITEM_CODE as itemCode,
-          p.STK_PST_ITEM_NAME as itemName,
-          sum(p.STK_PST_DOC_QTY) as forecastQty
+        WITH ForecastData AS
+(
+    SELECT
+        b.erpItemRefId,
+        SUM(o.quantity) AS forecastQty
+    FROM BoardDefinition b
+    INNER JOIN BoxType x
+        ON b.id = x.boardDefinitionId
+    INNER JOIN Orders o
+        ON x.id = o.boxTypeId
+    WHERE o.id NOT IN
+    (
+        SELECT orderId
+        FROM ProductionPlanning
+    )
+    GROUP BY b.erpItemRefId
+)
 
-        from STOCK_LEDGER_HEADER_W_A h
+SELECT
+    IM.IT_MST_CODE            AS itemCode,
+    IM.IT_MST_ALIAS           AS itemAlias,
+    IM.IT_MST_DESCRIPTION     AS itemDescription,
 
-        inner join STOCK_LEDGER_POSTING_W_A p
-          on h.STK_HDR_DOC_ID = p.STK_DET_HEADER_ID
+    SUM(SLP.STK_PST_HOQ)      AS actualBalance,
 
-        inner join ITEM_MASTER i
-          on i.IT_MST_CODE = p.STK_PST_ITEM_ID
+    ISNULL(F.forecastQty,0)   AS forecastQty,
 
-        where
-          i.IT_MST_GRP_CODE = 14
-          and h.STK_HDR_TO_LOC_ID = 89
+    SUM(SLP.STK_PST_HOQ)
+      - ISNULL(F.forecastQty,0)
+      AS forecastBalance
 
-          and cast(h.STK_HDR_DOC_DATE as datetime)
-            >= cast('${fromDate}' as datetime)
+FROM STOCK_LEDGER_HEADER_W_A SLH
 
-          and cast(h.STK_HDR_DOC_DATE as datetime)
-            <= cast('${toDate}' as datetime)
+INNER JOIN STOCK_LEDGER_POSTING_W_A SLP
+    ON SLH.STK_HDR_DOC_ID = SLP.STK_DET_HEADER_ID
 
-        group by
-          p.STK_PST_ITEM_CODE,
-          p.STK_PST_ITEM_NAME
+INNER JOIN ITEM_MASTER IM
+    ON IM.IT_MST_CODE = SLP.STK_PST_ITEM_ID
 
-        order by
-          p.STK_PST_ITEM_NAME
+INNER JOIN ITEM_GROUP IG
+    ON IG.IT_GRP_CODE = IM.IT_MST_GRP_CODE
+
+LEFT JOIN ForecastData F
+    ON F.erpItemRefId = IM.IT_MST_CODE
+
+WHERE
+    SLH.STK_HDR_TO_LOC_ID IN
+    (
+        20,89,90,91,92,93,94,
+        95,96,145,16,17,146
+    )
+    AND SLP.STK_PST_HOQ > 0
+    AND IG.IT_GRP_CODE = 13
+
+GROUP BY
+    IM.IT_MST_CODE,
+    IM.IT_MST_ALIAS,
+    IM.IT_MST_DESCRIPTION,
+    F.forecastQty
+
+ORDER BY
+    IM.IT_MST_ALIAS
       `);
 
-    const mapped = result.map((item) => {
-      const actualBalance = 1000;
-
-      return {
-        itemCode: item.itemCode,
-        itemName: item.itemName,
-
-        forecastQty:
-          Number(item.forecastQty ?? 0),
-
-        actualBalance,
-
-        forecastBalance:
-          actualBalance -
-          Number(item.forecastQty ?? 0),
-      };
-    });
+const mapped = result.map((row: any) => ({
+  itemCode: row.itemCode,
+  itemAlias: row.itemAlias,
+  itemDescription: row.itemDescription,
+  actualBalance: Number(row.actualBalance ?? 0),
+  forecastQty: Number(row.forecastQty ?? 0),
+  forecastBalance: Number(row.forecastBalance ?? 0),
+}));
 
     return NextResponse.json(mapped);
   } catch (error) {

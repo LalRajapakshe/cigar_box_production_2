@@ -1,3 +1,4 @@
+import { API_BASE } from "../apiBase";
 export const boardForecastSummaryReportService =
 {
   async getReport(
@@ -5,7 +6,7 @@ export const boardForecastSummaryReportService =
     toDate: string
   ) {
     const response = await fetch(
-      `/api/cigar-b-rpt-board-forecast-summary?fromDate=${fromDate}&toDate=${toDate}`
+      `${API_BASE}/cigar-b-rpt-board-forecast-summary?fromDate=${fromDate}&toDate=${toDate}`
     );
 
     if (!response.ok) {

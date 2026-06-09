@@ -2,6 +2,8 @@
 
 import type { OrderPlanningResult } from "@/lib/types/planning";
 import PlanningPrintReport from "./PlanningPrintReport";
+import { useState } from "react";
+
 
 interface Props {
   result: OrderPlanningResult;
@@ -188,6 +190,10 @@ export default function OrderPlanningComponent({ result }: Props) {
     );
   }
 
+const [printMode, setPrintMode] =
+  useState<"planning" | "slat" | null>(null);
+
+
   return (
     <div className="space-y-6">
       <div className="border-b border-slate-300 pb-4">
@@ -237,11 +243,28 @@ export default function OrderPlanningComponent({ result }: Props) {
 </div>
 
         <button
-          onClick={() => window.print()}
+          onClick={() => {
+          setPrintMode("planning");
+          setTimeout(() => {
+                window.print();
+              }, 100);
+            }}
+         // onClick={() => window.print()}
           className="print:hidden rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700"
         >
           Print Report
         </button>
+ <button
+  onClick={() =>
+    window.open(
+       `/slat-cutting-print?planningNo=${result.planningNo}`,
+      "_blank"
+    )
+  }
+  className="rounded-xl bg-green-700 px-4 py-2 text-sm text-white"
+>
+  Print Slat Sheet
+</button>
       </div>
 
       <SummaryCard result={result} />
@@ -262,8 +285,7 @@ export default function OrderPlanningComponent({ result }: Props) {
           </ul>
         </div>
       )}
-
-      <PlanningPrintReport result={result} />
+     <PlanningPrintReport result={result} />
     </div>
   );
 }
