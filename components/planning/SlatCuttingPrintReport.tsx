@@ -28,7 +28,26 @@ export default function SlatCuttingPrintReport({
           SLAT CUTTING REPORT
         </div>
       </div>
+      {/* Stock Status */}
+ <div className="grid grid-cols-3 gap-2 text-center text-xs">
+  {report.stockStatus?.map((row:any,index:number)=>(
+    <div
+      key={index}
+      className="border p-2"
+    >
+      <div className="font-bold">
+        {row.sheetKey}
+      </div>
 
+      <div>
+        {row.requiresPrinting
+          ? "PRINT"
+          : "PLAIN"}
+      </div>
+    </div>
+  ))}
+</div>
+      {/* Stock Status */}
       {/* Header Details */}
       <div className="mb-4 grid grid-cols-2 gap-2 border p-3">
         <div>
@@ -71,9 +90,8 @@ export default function SlatCuttingPrintReport({
           {report.header?.deliveryBy}
         </div>
       </div>
-
-      {/* Stock Status */}
-      <div className="mb-4 border p-3">
+{/* Header Details */}
+      {/* <div className="mb-4 border p-3">
         <div className="mb-2 font-bold">
           STOCK STATUS
         </div>
@@ -109,148 +127,180 @@ export default function SlatCuttingPrintReport({
             )}
           </tbody>
         </table>
-      </div>
+      </div>  */}
 
-      {/* Shape Row */}
-      <div className="mb-4 flex justify-between gap-3">
+   {/* Slat Details */}
+
+<div className="mb-4">
+
+  <table className="w-full border-collapse">
+
+    <tbody>
+
+      {/* Rectangle Header Row */}
+
+      <tr>
+
+        <td
+          className="border-0"
+          style={{ width: "140px" }}
+        >
+        </td>
+
         {report.slatDetails?.map(
           (part: any) => (
-            <div
+
+            <td
               key={part.sheetKey}
-              className="flex-1"
+              className="pb-2 text-center align-bottom"
             >
+
               <div
-                className="mx-auto flex items-center justify-center border text-center"
                 style={{
-                  height: "80px",
+                  border: "2px solid black",
+                  margin: "0 auto",
+                  width:
+                    part.sheetKey === "longSheet"
+                      ? "180px"
+                      : part.sheetKey === "smallSheet"
+                      ? "90px"
+                      : "130px",
+                  height: "70px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  fontWeight: "bold",
                 }}
               >
                 <div>
-                  <div className="font-bold">
-                    {part.sheetKey}
-                  </div>
-
-                  <div>
-                    {part.height} x {part.width}
-                  </div>
+                  {part.sheetKey}
                 </div>
+
+                <div>
+                  {part.height} x {part.width}
+                </div>
+
               </div>
-            </div>
+
+            </td>
+
           )
         )}
-      </div>
 
-      {/* Details Matrix */}
-      <div className="mb-4">
-        <table className="w-full border">
-          <tbody>
-            <tr>
-              <td className="border p-2 font-bold">
-                Slats / Board
-              </td>
+      </tr>
 
-              {report.slatDetails?.map(
-                (part: any) => (
-                  <td
-                    key={part.sheetKey}
-                    className="border text-center"
-                  >
-                    {part.slatsPerBoard}
-                  </td>
-                )
-              )}
-            </tr>
+      {/* Slats / Board */}
 
-            <tr>
-              <td className="border p-2 font-bold">
-                Pcs / Slat
-              </td>
+      <tr>
 
-              {report.slatDetails?.map(
-                (part: any) => (
-                  <td
-                    key={part.sheetKey}
-                    className="border text-center"
-                  >
-                    {part.piecesPerSlat}
-                  </td>
-                )
-              )}
-            </tr>
+        <td className="border p-2 font-bold">
+          Slats / Board
+        </td>
 
-            <tr>
-              <td className="border p-2 font-bold">
-                Boards
-              </td>
+        {report.slatDetails?.map(
+          (part: any) => (
+            <td
+              key={part.sheetKey}
+              className="border text-center"
+            >
+              {part.slatsPerBoard}
+            </td>
+          )
+        )}
 
-              {report.slatDetails?.map(
-                (part: any) => (
-                  <td
-                    key={part.sheetKey}
-                    className="border text-center"
-                  >
-                    {part.totalBoardsRequired}
-                  </td>
-                )
-              )}
-            </tr>
+      </tr>
 
-            <tr>
-              <td className="border p-2 font-bold">
-                Slats
-              </td>
+      {/* Pcs / Slat */}
 
-              {report.slatDetails?.map(
-                (part: any) => (
-                  <td
-                    key={part.sheetKey}
-                    className="border text-center"
-                  >
-                    {part.totalSlatsRequired}
-                  </td>
-                )
-              )}
-            </tr>
+      <tr>
 
-            <tr>
-              <td className="border p-2 font-bold">
-                Extra Size
-              </td>
+        <td className="border p-2 font-bold">
+          Pcs / Slat
+        </td>
 
-              {report.slatDetails?.map(
-                (part: any) => (
-                  <td
-                    key={part.sheetKey}
-                    className="border text-center"
-                  >
-                    {part.remainingBoardHeight}
-                    x
-                    {part.remainingBoardWidth}
-                  </td>
-                )
-              )}
-            </tr>
+        {report.slatDetails?.map(
+          (part: any) => (
+            <td
+              key={part.sheetKey}
+              className="border text-center"
+            >
+              {part.piecesPerSlat}
+            </td>
+          )
+        )}
 
-            <tr>
-              <td className="border p-2 font-bold">
-                Duration
-              </td>
+      </tr>
 
-              {report.slatDetails?.map(
-                (part: any) => (
-                  <td
-                    key={part.sheetKey}
-                    className="border text-center"
-                  >
-                    {part.totalProductionTimeMinutes}
-                  </td>
-                )
-              )}
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      {/* Boards */}
 
+      <tr>
+
+        <td className="border p-2 font-bold">
+          Boards
+        </td>
+
+        {report.slatDetails?.map(
+          (part: any) => (
+            <td
+              key={part.sheetKey}
+              className="border text-center"
+            >
+              {part.totalBoardsRequired}
+            </td>
+          )
+        )}
+
+      </tr>
+
+      {/* Slats */}
+
+      <tr>
+
+        <td className="border p-2 font-bold">
+          Slats
+        </td>
+
+        {report.slatDetails?.map(
+          (part: any) => (
+            <td
+              key={part.sheetKey}
+              className="border text-center"
+            >
+              {part.totalSlatsRequired}
+            </td>
+          )
+        )}
+
+      </tr>
+
+      {/* Extra Size */}
+
+      <tr>
+
+        <td className="border p-2 font-bold">
+          Extra Size
+        </td>
+
+        {report.slatDetails?.map(
+          (part: any) => (
+            <td
+              key={part.sheetKey}
+              className="border text-center"
+            >
+              {part.remainingBoardHeight}
+              x
+              {part.remainingBoardWidth}
+            </td>
+          )
+        )}
+
+      </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
       {/* Board Summary */}
       <div className="mb-4 border p-3">
         <div>

@@ -1,11 +1,13 @@
 "use client";
-
+import { useRef } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import SlatCuttingPrintReport
 from "@/components/planning/SlatCuttingPrintReport";
-export default function Page() {
 
+
+export default function Page() {
+const printedRef = useRef(false);
   const searchParams =
     useSearchParams();
 
@@ -33,9 +35,16 @@ export default function Page() {
       );
 
       setData(result);
-      setTimeout(() => {
-  window.print();
-}, 500);
+
+if (!printedRef.current) {
+
+  printedRef.current = true;
+
+  setTimeout(() => {
+    window.print();
+  }, 500);
+
+}
     }
 
     if (planningNo) {
