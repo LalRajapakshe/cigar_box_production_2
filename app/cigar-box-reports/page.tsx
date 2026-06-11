@@ -50,6 +50,22 @@ const reportGroups = [
       name: "UTP Item Order Of The Year",
       href: "/cigar-b-rpt-utp-item-order-year",
     },
+      {
+      name: "Monthly Sales orders",
+      href: "/cigar-b-rpt-sale-order",
+    },
+    {
+      name: "UTP Received Box orders",
+      href: "/cigar-b-rpt-utp-received-box-orders",
+    },
+        {
+      name: "Sales Order Summary",
+      href: "/cigar-b-rpt-sales-order-summary",
+    },
+            {
+      name: "Monthly Order And Job Summary",
+      href: "/cigar-b-rpt-monthly-orders-job-summary",
+    },
         {
       name: "Production Pending Orders",
       href: "/cigar-b-rpt-production-pending-orders",

@@ -19,15 +19,15 @@ export default function SlatCuttingPrintReport({
       }}
     >
       {/* Header */}
-      <div className="mb-4 border-b pb-3 text-center">
+    {/*  <div className="mb-4 border-b pb-3 text-center">
         <div className="text-xl font-bold">
           CIGAR BOX PRODUCTION SYSTEM
         </div>
 
-        <div className="text-sm">
+         <div className="text-sm">
           SLAT CUTTING REPORT
         </div>
-      </div>
+      </div>*/}
       {/* Stock Status */}
  <div className="grid grid-cols-3 gap-2 text-center text-xs">
   {report.stockStatus?.map((row:any,index:number)=>(

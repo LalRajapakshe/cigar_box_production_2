@@ -1,7 +1,9 @@
 "use client";
 import * as XLSX from "xlsx";
+import { API_BASE }
+from "@/lib/apiBase";
+
 import { useState } from "react";
-import { API_BASE } from "@/lib/apiBase";
 
 export default function Page() {
 
@@ -27,7 +29,7 @@ export default function Page() {
 
     const response =
       await fetch(
-        `${API_BASE}/cigar-b-rpt-sanding-outside-pending-job-status?fromDate=${fromDate}&toDate=${toDate}`
+        `${API_BASE}/cigar-b-rpt-monthly-orders-job-summary?fromDate=${fromDate}&toDate=${toDate}`
       );
 
     const data =
@@ -39,7 +41,7 @@ export default function Page() {
         : []
     );
   }
-const exportExcel = () => {
+  const exportExcel = () => {
   const worksheet =
     XLSX.utils.json_to_sheet(rows);
   const workbook =
@@ -67,7 +69,7 @@ const handlePrint = () => {
     <div className="space-y-4">
 
       <h1 className="text-xl font-bold">
-        Sanding Outside Pending Job Status
+        Monthly Orders And Job Summary
       </h1>
 
       <div className="flex gap-3">
@@ -94,11 +96,12 @@ const handlePrint = () => {
 
         <button
           onClick={loadReport}
+          className="primary-btn"
         >
           Load
         </button>
 
- <button
+   <button
   onClick={handlePrint}
   className="rounded-xl bg-green-700 px-4 py-2 text-white"
 >
@@ -118,18 +121,15 @@ const handlePrint = () => {
 
           <tr>
 
-            <th>Job No</th>
-            <th>Issue No</th>
-            <th>Issue Date</th>
+            <th>Customer</th>
+            <th>Date</th>
             <th>Sales Order No</th>
-            <th>Item Name</th>
-            <th>Bag No</th>
-
-            <th>T/P</th>
-            <th>Bottom</th>
-            <th>Long</th>
-            <th>Small</th>
-            <th>Middle</th>
+            <th>Customer PO</th>
+            <th>Remaining Qty</th>
+            <th>Unit Rate</th>
+            <th>Amount LKR</th>
+            <th>Amount USD</th>
+            <th>Ex Rate</th>
 
           </tr>
 
@@ -142,18 +142,15 @@ const handlePrint = () => {
 
               <tr key={index}>
 
-                <td>{row.jobNo}</td>
-                <td>{row.issueNo}</td>
-                <td>{row.issueDate}</td>
+                <td>{row.customerName}</td>
+                <td>{row.date}</td>
                 <td>{row.salesOrderNo}</td>
-                <td>{row.itemName}</td>
-                <td>{row.bagNo}</td>
-
-                <td>{formatAmount(row.tp)}</td>
-                <td>{formatAmount(row.bottom)}</td>
-                <td>{formatAmount(row.long)}</td>
-                <td>{formatAmount(row.small)}</td>
-                <td>{formatAmount(row.middle)}</td>
+                <td>{row.customerPo}</td>
+                <td>{formatAmount(row.remainingQty)}</td>
+                <td>{formatAmount(row.unitRate)}</td>
+                <td>{formatAmount(row.amountLkr)}</td>
+                <td>{formatAmount(row.amountUsd)}</td>
+                <td>{row.exRate}</td>
 
               </tr>
 

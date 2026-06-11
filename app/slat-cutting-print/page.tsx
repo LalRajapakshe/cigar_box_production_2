@@ -1,76 +1,17 @@
 "use client";
-import { useRef } from "react";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import SlatCuttingPrintReport
-from "@/components/planning/SlatCuttingPrintReport";
 
+import { Suspense } from "react";
+import SlatCuttingPageContent
+from "./SlatCuttingPageContent";
+
+export const dynamic = "force-dynamic";
 
 export default function Page() {
-const printedRef = useRef(false);
-  const searchParams =
-    useSearchParams();
 
-  const planningNo =
-    searchParams.get("planningNo");
-
-  const [data, setData] =
-    useState<any>(null);
-
-  useEffect(() => {
-
-    async function loadData() {
-
-      const response =
-        await fetch(
-          `/api/cigar-b-rpt-slat-cutting-sheet?planningNo=${planningNo}`
-        );
-
-      const result =
-        await response.json();
-
-      console.log(
-        "REPORT DATA",
-        result
-      );
-
-      setData(result);
-
-if (!printedRef.current) {
-
-  printedRef.current = true;
-
-  setTimeout(() => {
-    window.print();
-  }, 500);
-
-}
-    }
-
-    if (planningNo) {
-      loadData();
-    }
-
-  }, [planningNo]);
-
-if (!data) {
-  return <div>Loading...</div>;
-}
   return (
-    <div>
-      <h2>
-        Slat Cutting Report
-      </h2>
-
-      <div>
-        Planning No :
-        {" "}
-        {planningNo}
-      </div>
-
- <SlatCuttingPrintReport
-  report={data}
-/>
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <SlatCuttingPageContent />
+    </Suspense>
   );
+
 }

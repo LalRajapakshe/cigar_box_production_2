@@ -1,183 +1,198 @@
 "use client";
+import * as XLSX from "xlsx";
+import { useState } from "react";
+import { API_BASE } from "@/lib/apiBase";
 
-export default function SandingOutsideReadyPaymentsPage() {
+export default function Page() {
 
-  const groups = [
-    "Aruni",
-    "Gamini",
-    "Nilanthi",
-  ];
+  const [fromDate, setFromDate] =
+    useState("");
 
-  return (
-    <div className="page-shell">
-      <div className="page-container">
+  const [toDate, setToDate] =
+    useState("");
 
-        <section className="page-hero">
-          <h1 className="page-title">
-            Sanding Outside Ready for Payments
-          </h1>
+  const [rows, setRows] =
+    useState<any[]>([]);
 
-          <p className="page-subtitle">
-            As at payment-ready sanding jobs
-          </p>
-        </section>
+  async function loadReport() {
 
-        <section className="section-card space-y-8">
+    if (!fromDate || !toDate) {
 
-          {groups.map((group, groupIndex) => (
-            <div
-              key={groupIndex}
-              className="overflow-auto rounded-2xl border border-slate-200"
-            >
+      alert(
+        "Please select From Date and To Date"
+      );
 
-              <div className="bg-rose-100 px-4 py-3 text-lg font-semibold text-slate-800">
-                Group Name : {group}
-              </div>
+      return;
+    }
 
-              <table className="min-w-[1400px] text-sm">
+    const response =
+      await fetch(
+        `${API_BASE}/cigar-b-rpt-sanding-outside-ready-for-payments?fromDate=${fromDate}&toDate=${toDate}`
+      );
 
-                <thead className="bg-yellow-100 text-slate-800">
+    const data =
+      await response.json();
 
-                  <tr>
-
-                    <th className="border px-3 py-2 text-left">
-                      SO No
-                    </th>
-
-                    <th className="border px-3 py-2 text-left">
-                      Job No
-                    </th>
-
-                    <th className="border px-3 py-2 text-left">
-                      Issue No
-                    </th>
-
-                    <th className="border px-3 py-2 text-left">
-                      Iss. Date
-                    </th>
-
-                    <th className="border px-3 py-2 text-left">
-                      Part
-                    </th>
-
-                    <th className="border px-3 py-2 text-left">
-                      Bag No
-                    </th>
-
-                    <th className="border px-3 py-2 text-right">
-                      Issued Pcs
-                    </th>
-
-                    <th className="border px-3 py-2 text-left">
-                      Rec.Date
-                    </th>
-
-                    <th className="border px-3 py-2 text-right">
-                      Received
-                    </th>
-
-                    <th className="border px-3 py-2 text-right">
-                      Rejected
-                    </th>
-
-                    <th className="border px-3 py-2 text-left">
-                      Rec. By
-                    </th>
-
-                    <th className="border px-3 py-2 text-right">
-                      Good Pcs
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  <tr className="h-10 border-t border-slate-200">
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2 text-right"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2 text-right"></td>
-
-                    <td className="border px-3 py-2 text-right"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2 text-right"></td>
-
-                  </tr>
-
-                  <tr className="bg-slate-50 font-semibold">
-
-                    <td
-                      colSpan={6}
-                      className="border px-3 py-2 text-right"
-                    >
-                      Category Total
-                    </td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                  </tr>
-
-                  <tr className="bg-slate-100 font-bold">
-
-                    <td
-                      colSpan={6}
-                      className="border px-3 py-2 text-right"
-                    >
-                      Total
-                    </td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                  </tr>
-
-                </tbody>
-
-              </table>
-
-            </div>
-          ))}
-
-        </section>
-
-      </div>
-    </div>
+    setRows(
+      Array.isArray(data)
+        ? data
+        : []
+    );
+  }
+const exportExcel = () => {
+  const worksheet =
+    XLSX.utils.json_to_sheet(rows);
+  const workbook =
+    XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "Report"
   );
+  XLSX.writeFile(
+    workbook,
+    "MonthlyOrdersAndJobSummary.xlsx"
+  );
+};
+  const formatAmount = (value: any) =>
+  Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const handlePrint = () => {
+  window.print();
+};
+  return (
+
+    <div className="space-y-4">
+
+      <h1 className="text-xl font-bold">
+        Sanding Outside Ready For Payments
+      </h1>
+
+      <div className="flex gap-3">
+
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(e) =>
+            setFromDate(
+              e.target.value
+            )
+          }
+        />
+
+        <input
+          type="date"
+          value={toDate}
+          onChange={(e) =>
+            setToDate(
+              e.target.value
+            )
+          }
+        />
+
+        <button
+          onClick={loadReport}
+        >
+          Load
+        </button>
+   <button
+  onClick={handlePrint}
+  className="rounded-xl bg-green-700 px-4 py-2 text-white"
+>
+  Print
+</button> 
+
+  <button
+  onClick={exportExcel}
+>
+  Export Excel
+</button>
+      </div>
+
+      <table className="w-full border">
+
+        <thead>
+
+          <tr>
+
+            <th>Sales Order No</th>
+            <th>Job No</th>
+            <th>Issue No</th>
+            <th>Issue Date</th>
+            <th>Item Name</th>
+            <th>Bag No</th>
+            <th>Issued Kg</th>
+            <th>Issued Pcs</th>
+            <th>Rec. Date</th>
+            <th>Received</th>
+            <th>Rejected</th>
+            <th>Rec. By</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {rows.map(
+            (row, index) => (
+
+              <tr key={index}>
+
+                <td>{row.salesOrderNo}</td>
+                <td>{row.jobNo}</td>
+                <td>{row.issueNo}</td>
+                <td>{row.issueDate}</td>
+                <td>{row.itemName}</td>
+                <td>{row.bagNo}</td>
+
+                <td className="text-right">
+                  {Number(
+                    row.issuedKg
+                  ).toLocaleString(
+                    "en-US",
+                    {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    }
+                  )}
+                </td>
+
+                <td className="text-right">
+                  {Number(
+                    row.issuedPcs
+                  ).toLocaleString()
+                }</td>
+
+                <td>{row.receivedDate}</td>
+
+                <td className="text-right">
+                  {Number(
+                    row.received
+                  ).toLocaleString()}
+                </td>
+
+                <td className="text-right">
+                  {Number(
+                    row.rejected
+                  ).toLocaleString()}
+                </td>
+
+                <td>{row.receivedBy}</td>
+
+              </tr>
+
+            )
+          )}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  );
+
 }

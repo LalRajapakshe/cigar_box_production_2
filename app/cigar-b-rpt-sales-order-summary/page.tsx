@@ -1,7 +1,8 @@
 "use client";
+import { API_BASE }
+from "@/lib/apiBase";
 import * as XLSX from "xlsx";
 import { useState } from "react";
-import { API_BASE } from "@/lib/apiBase";
 
 export default function Page() {
 
@@ -27,7 +28,7 @@ export default function Page() {
 
     const response =
       await fetch(
-        `${API_BASE}/cigar-b-rpt-sanding-outside-pending-job-status?fromDate=${fromDate}&toDate=${toDate}`
+        `${API_BASE}/cigar-b-rpt-sales-order-summary?fromDate=${fromDate}&toDate=${toDate}`
       );
 
     const data =
@@ -39,7 +40,7 @@ export default function Page() {
         : []
     );
   }
-const exportExcel = () => {
+  const exportExcel = () => {
   const worksheet =
     XLSX.utils.json_to_sheet(rows);
   const workbook =
@@ -58,7 +59,7 @@ const exportExcel = () => {
   Number(value).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  });
+  });  
 const handlePrint = () => {
   window.print();
 };
@@ -67,7 +68,7 @@ const handlePrint = () => {
     <div className="space-y-4">
 
       <h1 className="text-xl font-bold">
-        Sanding Outside Pending Job Status
+        Sales Order Summary
       </h1>
 
       <div className="flex gap-3">
@@ -94,11 +95,11 @@ const handlePrint = () => {
 
         <button
           onClick={loadReport}
+          className="primary-btn"
         >
           Load
         </button>
-
- <button
+   <button
   onClick={handlePrint}
   className="rounded-xl bg-green-700 px-4 py-2 text-white"
 >
@@ -118,18 +119,11 @@ const handlePrint = () => {
 
           <tr>
 
-            <th>Job No</th>
-            <th>Issue No</th>
-            <th>Issue Date</th>
+            <th>Customer</th>
+            <th>Date</th>
             <th>Sales Order No</th>
-            <th>Item Name</th>
-            <th>Bag No</th>
-
-            <th>T/P</th>
-            <th>Bottom</th>
-            <th>Long</th>
-            <th>Small</th>
-            <th>Middle</th>
+            <th>Customer PO</th>
+            <th>Amount</th>
 
           </tr>
 
@@ -142,18 +136,25 @@ const handlePrint = () => {
 
               <tr key={index}>
 
-                <td>{row.jobNo}</td>
-                <td>{row.issueNo}</td>
-                <td>{row.issueDate}</td>
-                <td>{row.salesOrderNo}</td>
-                <td>{row.itemName}</td>
-                <td>{row.bagNo}</td>
+                <td>
+                  {row.customerName}
+                </td>
 
-                <td>{formatAmount(row.tp)}</td>
-                <td>{formatAmount(row.bottom)}</td>
-                <td>{formatAmount(row.long)}</td>
-                <td>{formatAmount(row.small)}</td>
-                <td>{formatAmount(row.middle)}</td>
+                <td>
+                  {row.date}
+                </td>
+
+                <td>
+                  {row.salesOrderNo}
+                </td>
+
+                <td>
+                  {row.customerPo}
+                </td>
+
+                <td className="text-right">
+                  {formatAmount(row.amount)}
+                </td>
 
               </tr>
 

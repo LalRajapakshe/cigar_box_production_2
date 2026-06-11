@@ -256,9 +256,9 @@ const [printMode, setPrintMode] =
         </button>
  <button
   onClick={() =>
-    window.open(
-       `/slat-cutting-print?planningNo=${result.planningNo}`,
-      "_blank"
+window.open(
+  `${window.location.origin}/cb/slat-cutting-print?planningNo=${result.planningNo}`,
+  "_blank"
     )
   }
   className="rounded-xl bg-green-700 px-4 py-2 text-sm text-white"

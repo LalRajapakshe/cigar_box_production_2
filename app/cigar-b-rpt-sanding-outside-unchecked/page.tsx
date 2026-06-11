@@ -1,191 +1,178 @@
 "use client";
+import * as XLSX from "xlsx";
+import { useState } from "react";
+import { API_BASE } from "@/lib/apiBase";
 
-export default function SandingOutsideUncheckedPage() {
+export default function Page() {
 
-  const emptyRows = Array.from(
-    { length: 15 },
-    (_, index) => index
+  const [fromDate, setFromDate] =
+    useState("");
+
+  const [toDate, setToDate] =
+    useState("");
+
+  const [rows, setRows] =
+    useState<any[]>([]);
+
+  async function loadReport() {
+
+    if (!fromDate || !toDate) {
+
+      alert(
+        "Please select From Date and To Date"
+      );
+
+      return;
+    }
+
+    const response =
+      await fetch(
+        `${API_BASE}/cigar-b-rpt-sanding-outside-unchecked?fromDate=${fromDate}&toDate=${toDate}`
+      );
+
+    const data =
+      await response.json();
+
+    setRows(
+      Array.isArray(data)
+        ? data
+        : []
+    );
+  }
+ const exportExcel = () => {
+  const worksheet =
+    XLSX.utils.json_to_sheet(rows);
+  const workbook =
+    XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "Report"
   );
-
+  XLSX.writeFile(
+    workbook,
+    "MonthlyOrdersAndJobSummary.xlsx"
+  );
+};
+  const formatAmount = (value: any) =>
+  Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const handlePrint = () => {
+  window.print();
+};
   return (
-    <div className="page-shell">
-      <div className="page-container">
 
-        <section className="page-hero">
-          <h1 className="page-title">
-            Sanding Outside Unchecked
-          </h1>
+    <div className="space-y-4">
 
-          <p className="page-subtitle">
-            As at pending unchecked sanding jobs
-          </p>
-        </section>
+      <h1 className="text-xl font-bold">
+        Sanding Outside Unchecked
+      </h1>
 
-        <section className="section-card space-y-6">
+      <div className="flex gap-3">
 
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(e) =>
+            setFromDate(
+              e.target.value
+            )
+          }
+        />
 
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
-                As At Date
-              </label>
+        <input
+          type="date"
+          value={toDate}
+          onChange={(e) =>
+            setToDate(
+              e.target.value
+            )
+          }
+        />
 
-              <input
-                type="date"
-                className="w-full rounded-xl border border-slate-300 px-3 py-2"
-              />
-            </div>
+        <button
+          onClick={loadReport}
+        >
+          Load
+        </button>
+   <button
+  onClick={handlePrint}
+  className="rounded-xl bg-green-700 px-4 py-2 text-white"
+>
+  Print
+</button> 
 
-            <div className="flex items-end">
-              <button
-                className="rounded-xl bg-slate-900 px-4 py-2 text-sm text-white hover:bg-slate-700"
-              >
-                Load Report
-              </button>
-            </div>
-
-          </div>
-
-          <div className="overflow-auto rounded-2xl border border-slate-200">
-
-            <table className="min-w-[1400px] text-sm">
-
-              <thead className="bg-yellow-100 text-slate-800">
-
-                <tr>
-
-                  <th className="border px-3 py-2 text-left">
-                    SO No
-                  </th>
-
-                  <th className="border px-3 py-2 text-left">
-                    Job No
-                  </th>
-
-                  <th className="border px-3 py-2 text-left">
-                    Issue No
-                  </th>
-
-                  <th className="border px-3 py-2 text-left">
-                    Iss. Date
-                  </th>
-
-                  <th className="border px-3 py-2 text-left">
-                    Item Code
-                  </th>
-
-                  <th className="border px-3 py-2 text-left">
-                    Part
-                  </th>
-
-                  <th className="border px-3 py-2 text-left">
-                    Bag No
-                  </th>
-
-                  <th className="border px-3 py-2 text-right">
-                    Issued Kg
-                  </th>
-
-                  <th className="border px-3 py-2 text-right">
-                    Issued Pcs
-                  </th>
-
-                  <th className="border px-3 py-2 text-left">
-                    Rec.Date
-                  </th>
-
-                  <th className="border px-3 py-2 text-right">
-                    Rec.Kg
-                  </th>
-
-                  <th className="border px-3 py-2 text-left">
-                    Rec. By
-                  </th>
-
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {emptyRows.map((row) => (
-                  <tr
-                    key={row}
-                    className="h-10 border-t border-slate-200"
-                  >
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2 text-right"></td>
-
-                    <td className="border px-3 py-2 text-right"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                    <td className="border px-3 py-2 text-right"></td>
-
-                    <td className="border px-3 py-2"></td>
-
-                  </tr>
-                ))}
-
-              </tbody>
-
-              <tfoot className="bg-slate-50 font-semibold">
-
-                <tr>
-
-                  <td
-                    colSpan={7}
-                    className="border px-3 py-2 text-right"
-                  >
-                    Total
-                  </td>
-
-                  <td
-                    colSpan={5}
-                    className="border px-3 py-2"
-                  ></td>
-
-                </tr>
-
-                <tr>
-
-                  <td
-                    colSpan={7}
-                    className="border px-3 py-2 text-right"
-                  >
-                    Grand Total
-                  </td>
-
-                  <td
-                    colSpan={5}
-                    className="border px-3 py-2"
-                  ></td>
-
-                </tr>
-
-              </tfoot>
-
-            </table>
-
-          </div>
-
-        </section>
-
+  <button
+  onClick={exportExcel}
+>
+  Export Excel
+</button>
       </div>
+
+      <table className="w-full border">
+
+        <thead>
+
+          <tr>
+
+            <th>Sales Order No</th>
+            <th>Job No</th>
+            <th>Issue No</th>
+            <th>Issue Date</th>
+            <th>Item Name</th>
+            <th>Bag No</th>
+            <th>Issued Kg</th>
+            <th>Issued Pcs</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {rows.map(
+            (row, index) => (
+
+              <tr key={index}>
+
+                <td>{row.salesOrderNo}</td>
+                <td>{row.jobNo}</td>
+                <td>{row.issueNo}</td>
+                <td>{row.issueDate}</td>
+                <td>{row.itemName}</td>
+                <td>{row.bagNo}</td>
+
+                <td className="text-right">
+                  {Number(
+                    row.issuedKg
+                  ).toLocaleString(
+                    "en-US",
+                    {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    }
+                  )}
+                </td>
+
+                <td className="text-right">
+                  {Number(
+                    row.issuedPcs
+                  ).toLocaleString()}
+                </td>
+
+              </tr>
+
+            )
+          )}
+
+        </tbody>
+
+      </table>
+
     </div>
+
   );
+
 }
