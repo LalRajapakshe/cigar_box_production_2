@@ -5,29 +5,21 @@ import { API_BASE } from "@/lib/apiBase";
 
 export default function Page() {
 
-  const [fromDate, setFromDate] =
-    useState("");
-
-  const [toDate, setToDate] =
-    useState("");
+  const [year, setYear] =
+    useState(
+      new Date()
+        .getFullYear()
+        .toString()
+    );
 
   const [rows, setRows] =
     useState<any[]>([]);
 
   async function loadReport() {
 
-    if (!fromDate || !toDate) {
-
-      alert(
-        "Please select From Date and To Date"
-      );
-
-      return;
-    }
-
     const response =
       await fetch(
-        `${API_BASE}/cigar-b-rpt-sanding-outside-unchecked?fromDate=${fromDate}&toDate=${toDate}`
+        `${API_BASE}/cigar-b-rpt-utp-pc-orders-yearly-comparison?year=${year}`
       );
 
     const data =
@@ -39,7 +31,8 @@ export default function Page() {
         : []
     );
   }
- const exportExcel = () => {
+
+  const exportExcel = () => {
   const worksheet =
     XLSX.utils.json_to_sheet(rows);
   const workbook =
@@ -54,42 +47,30 @@ export default function Page() {
     "MonthlyOrdersAndJobSummary.xlsx"
   );
 };
-  const formatAmount = (value: any) =>
-  Number(value).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  const handlePrint = () => {
+
+const handlePrint = () => {
   window.print();
 };
+
   return (
 
     <div className="space-y-4">
 
       <h1 className="text-xl font-bold">
-        Sanding Outside Unchecked
+        UTP PC Orders Yearly Comparison
       </h1>
 
       <div className="flex gap-3">
 
         <input
-          type="date"
-          value={fromDate}
+          type="number"
+          value={year}
           onChange={(e) =>
-            setFromDate(
+            setYear(
               e.target.value
             )
           }
-        />
-
-        <input
-          type="date"
-          value={toDate}
-          onChange={(e) =>
-            setToDate(
-              e.target.value
-            )
-          }
+          placeholder="Year"
         />
 
         <button
@@ -109,6 +90,7 @@ export default function Page() {
 >
   Export Excel
 </button>
+
       </div>
 
       <table className="w-full border">
@@ -117,14 +99,15 @@ export default function Page() {
 
           <tr>
 
-            <th className="text-left">Sales Order No</th>
-            <th className="text-left">Job No</th>
-            <th className="text-left">Issue No</th>
-            <th className="text-left">Issue Date</th>
-            <th className="text-left">Item Name</th>
-            <th className="text-left">Bag No</th>
-            <th className="text-right">Issued Kg</th>
-            <th className="text-right">Issued Pcs</th>
+            <th className="text-left">Month</th>
+
+            <th className="text-right">
+              formatAmount(row.totalQty)
+            </th>
+
+            <th className="text-right">
+              formatAmount(row.amount)
+            </th>
 
           </tr>
 
@@ -137,16 +120,22 @@ export default function Page() {
 
               <tr key={index}>
 
-                <td>{row.salesOrderNo}</td>
-                <td>{row.jobNo}</td>
-                <td>{row.issueNo}</td>
-                <td>{row.issueDate}</td>
-                <td>{row.itemName}</td>
-                <td>{row.bagNo}</td>
+                <td>
+                  {row.monthName}
+                </td>
 
                 <td className="text-right">
+
                   {Number(
-                    row.issuedKg
+                    row.totalQty
+                  ).toLocaleString()}
+
+                </td>
+
+                <td className="text-right">
+
+                  {Number(
+                    row.amount
                   ).toLocaleString(
                     "en-US",
                     {
@@ -154,12 +143,7 @@ export default function Page() {
                       maximumFractionDigits: 2
                     }
                   )}
-                </td>
 
-                <td className="text-right">
-                  {Number(
-                    row.issuedPcs
-                  ).toLocaleString()}
                 </td>
 
               </tr>

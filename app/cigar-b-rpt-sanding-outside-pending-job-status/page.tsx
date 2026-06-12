@@ -118,19 +118,20 @@ const handlePrint = () => {
 
           <tr>
 
-            <th>Job No</th>
-            <th>Issue No</th>
-            <th>Issue Date</th>
-            <th>Sales Order No</th>
-            <th>Item Name</th>
-            <th>Bag No</th>
+            <th className="text-left">Job No</th>
+            <th className="text-left">Issue No</th>
+            <th className="text-left">Issue Date</th>
+            <th className="text-left">Sales Order No</th>
+            <th className="text-left">Item Name</th>
+            <th className="text-left">Bag No</th>
 
             <th>T/P</th>
             <th>Bottom</th>
             <th>Long</th>
             <th>Small</th>
             <th>Middle</th>
-
+            <th>Recev Date</th>
+            <th>Good Pcs</th>
           </tr>
 
         </thead>
@@ -154,7 +155,8 @@ const handlePrint = () => {
                 <td>{formatAmount(row.long)}</td>
                 <td>{formatAmount(row.small)}</td>
                 <td>{formatAmount(row.middle)}</td>
-
+                <td>{row.RecevDate}</td>
+                <td>{formatAmount(row.GoodPcs)}</td>
               </tr>
 
             )

@@ -117,18 +117,18 @@ const exportExcel = () => {
 
           <tr>
 
-            <th>Sales Order No</th>
-            <th>Job No</th>
-            <th>Issue No</th>
-            <th>Issue Date</th>
-            <th>Item Name</th>
-            <th>Bag No</th>
-            <th>Issued Kg</th>
-            <th>Issued Pcs</th>
-            <th>Rec. Date</th>
-            <th>Received</th>
-            <th>Rejected</th>
-            <th>Rec. By</th>
+            <th className="text-left">Sales Order No</th>
+            <th className="text-left">Job No</th>
+            <th className="text-left">Issue No</th>
+            <th className="text-left">Issue Date</th>
+            <th className="text-left">Item Name</th>
+            <th className="text-left">Bag No</th>
+            <th className="text-right">Issued Kg</th>
+            <th className="text-right">Issued Pcs</th>
+            <th className="text-left">Rec. Date</th>
+            <th className="text-right">Received</th>
+            <th className="text-right">Rejected</th>
+            <th className="text-left">Rec. By</th>
 
           </tr>
 

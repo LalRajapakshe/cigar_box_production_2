@@ -1,5 +1,5 @@
 "use client";
-
+import * as XLSX from "xlsx";
 import { useState } from "react";
 
 import {
@@ -37,7 +37,26 @@ export default function BoxTypeMasterReportPage() {
 
     }
   };
-
+const exportExcel = () => {
+  const worksheet =
+    XLSX.utils.json_to_sheet(rows);
+  const workbook =
+    XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "Report"
+  );
+  XLSX.writeFile(
+    workbook,
+    "MonthlyOrdersAndJobSummary.xlsx"
+  );
+};
+  const formatAmount = (value: any) =>
+  Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
   const handlePrint = () => {
     window.print();
   };
@@ -80,6 +99,11 @@ export default function BoxTypeMasterReportPage() {
               Print
             </button>
 
+  <button
+  onClick={exportExcel}
+>
+  Export Excel
+</button>
           </div>
 
           <div className="overflow-auto">
@@ -90,23 +114,23 @@ export default function BoxTypeMasterReportPage() {
 
                 <tr>
 
-                  <th>Name</th>
+                  <th className="text-left">Name</th>
 
-                  <th>Description</th>
+                  <th className="text-left">Description</th>
 
-                  <th>Top Width</th>
+                  <th className="text-right">Top Width</th>
 
-                  <th>Top Height</th>
+                  <th className="text-right">Top Height</th>
 
-                  <th>Long Width</th>
+                  <th className="text-right">Long Width</th>
 
-                  <th>Long Height</th>
+                  <th className="text-right">Long Height</th>
 
-                  <th>Short Width</th>
+                  <th className="text-right">Short Width</th>
 
-                  <th>Short Height</th>
+                  <th className="text-right">Short Height</th>
 
-                  <th>Print Available</th>
+                  <th className="text-right">Print Available</th>
 
                 </tr>
 
@@ -119,23 +143,23 @@ export default function BoxTypeMasterReportPage() {
 
                     <tr key={index}>
 
-                      <td>{row.name}</td>
+                      <td className="text-left">{row.name}</td>
 
-                      <td>{row.description}</td>
+                      <td className="text-left">{row.description}</td>
 
-                      <td>{row.top_width}</td>
+                      <td className="text-right">{formatAmount(row.top_width)}</td>
 
-                      <td>{row.top_height}</td>
+                      <td className="text-right">{formatAmount(row.top_height)}</td>
 
-                      <td>{row.long_width}</td>
+                      <td className="text-right">{formatAmount(row.long_width)}</td>
 
-                      <td>{row.long_height}</td>
+                      <td className="text-right">{formatAmount(row.long_height)}</td>
 
-                      <td>{row.short_width}</td>
+                      <td className="text-right">{formatAmount(row.short_width)}</td>
 
-                      <td>{row.short_height}</td>
+                      <td className="text-right">{formatAmount(row.short_height)}</td>
 
-                      <td>{row.print_available}</td>
+                      <td className="text-left">{row.print_available}</td>
 
                     </tr>
 

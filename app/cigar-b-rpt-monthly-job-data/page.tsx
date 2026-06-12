@@ -1,5 +1,5 @@
 "use client";
-
+import * as XLSX from "xlsx";
 import { useState } from "react";
 
 import {
@@ -48,9 +48,30 @@ export default function MonthlyJobDataPage() {
 
     }
   };
-  const handlePrint = () => {
+ const exportExcel = () => {
+  const worksheet =
+    XLSX.utils.json_to_sheet(rows);
+  const workbook =
+    XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "Report"
+  );
+  XLSX.writeFile(
+    workbook,
+    "MonthlyOrdersAndJobSummary.xlsx"
+  );
+};
+  const formatAmount = (value: any) =>
+  Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+const handlePrint = () => {
   window.print();
 };
+ 
   return (
     <div className="page-shell">
       <div className="page-container">
@@ -128,6 +149,12 @@ export default function MonthlyJobDataPage() {
 >
   Print
 </button> 
+
+  <button
+  onClick={exportExcel}
+>
+  Export Excel
+</button>
           </div>
 
           <div className="overflow-auto rounded-2xl border border-slate-200">
@@ -205,23 +232,23 @@ export default function MonthlyJobDataPage() {
                       </td>
 
                       <td className="px-4 py-3 text-right">
-                        {row.quantity}
+                        {formatAmount(row.quantity)}
                       </td>
 
                       <td className="px-4 py-3 text-right">
-                        {row.amount}
+                        {formatAmount(row.amount)}
                       </td>
 
                       <td className="px-4 py-3 text-right">
-                        {row.cost}
+                        {formatAmount(row.cost)}
                       </td>
 
                       <td className="px-4 py-3 text-right">
-                        {row.profit}
+                        {formatAmount(row.profit)}
                       </td>
 
                       <td className="px-4 py-3 text-right">
-                        {row.profitPercentage}
+                        {formatAmount(row.profitPercentage)}
                       </td>
 
                     </tr>

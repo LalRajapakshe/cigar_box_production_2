@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export async function getSandingOutsideReadyForPaymentsReport(
+export async function getSandingOutsidePaymentHistoryReport(
   fromDate: string,
   toDate: string
 ) {
@@ -29,13 +29,16 @@ export async function getSandingOutsideReadyForPaymentsReport(
 
         R1.totalPiecesRequired as issuedPcs,
 
-       L5.STK_HDR_DOC_DATE as receivedDate,
+        L5.STK_HDR_DOC_DATE as receivedDate,
 
         L5.Su as received,
 
         L6.Su as rejected,
 
-        L5.empName as receivedBy
+        L5.empName as receivedBy,
+
+        CAST('' AS VARCHAR(50))
+          as paymentNo
 
       FROM STOCK_LEDGER_HEADER_W_A H
 
@@ -75,6 +78,8 @@ export async function getSandingOutsideReadyForPaymentsReport(
       LEFT OUTER JOIN PO_SO_DOC_HEADER_W_A S
         ON S.PO_SO_HDR_ID =
            D.PO_SO_DET_HEADER_ID
+
+
 left outer join
    (select p.STK_PST_FROM_REF_DET_ID, h.STK_HDR_DOC_DATE, e.empName, sum(p.STK_PST_DOC_QTY) as Su
       FROM STOCK_LEDGER_HEADER_W_A H
@@ -98,9 +103,6 @@ left outer join
 		where H.STK_HDR_TO_LOC_ID = 103
 		group by p.STK_PST_FROM_REF_DET_ID) L6
 		on L6.STK_PST_FROM_REF_DET_ID = p.STK_DET_ID           
-
-
-
 
       WHERE
         H.STK_HDR_DOC_TYPE = 'TRAN'

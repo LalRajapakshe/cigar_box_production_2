@@ -8,10 +8,10 @@ const reportGroups = [
         name: "Box Type Master Report",
         href: "/cigar-b-rpt-box-type-master",
       },
-      {
-        name: "Production Planning Report",
-        href: "/cigar-box-reports/cigar-box/production-planning",
-      },
+    //  {
+     //   name: "Production Planning Report",
+    //    href: "/cigar-box-reports/cigar-box/production-planning",
+    //  },
       {
       name: "Board Balance Report",
       href: "/cigar-b-rpt-board-balance",
@@ -66,7 +66,23 @@ const reportGroups = [
       name: "Monthly Order And Job Summary",
       href: "/cigar-b-rpt-monthly-orders-job-summary",
     },
-        {
+            {
+      name: "UTP Item Order Pattern",
+      href: "/cigar-b-rpt-utp-item-order-pattern",
+    },     
+              {
+      name: "UTP PC Order Year Comparison",
+      href: "/cigar-b-rpt-utp-pc-orders-yearly-comparison",
+    },  
+              {
+      name: "Sanding Outside Payment History",
+      href: "/cigar-b-rpt-sanding-outside-payment-history",
+    },
+             {
+      name: "Box Stock Balance Of Size",
+      href: "/cigar-b-rpt-box-stock-balance-of-size",
+    },
+    {
       name: "Production Pending Orders",
       href: "/cigar-b-rpt-production-pending-orders",
     },
@@ -105,10 +121,12 @@ export default function ReportsPage() {
             </h2>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {group.reports.map((report) => (
+              {group.reports
+                 .filter(Boolean)
+                  .map((report) => (
                 <Link
-                  key={report.href}
-                  href={report.href}
+                  key={report?.href}
+                  href={report?.href  || "#"}
                   className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-400 hover:shadow-md"
                 >
                   <div className="text-lg font-semibold text-slate-800">

@@ -58,8 +58,8 @@ export async function getSandingOutsidePendingJobStatusReport(
                LIKE '%middleSheet%'
           THEN p.STK_PST_DOC_QTY
           ELSE 0
-        END as [middle]
-
+        END as [middle],
+		Hsrec.STK_HDR_DOC_DATE [RecevDate], psrec.STK_PST_DOC_QTY [GoodPcs]
       FROM STOCK_LEDGER_HEADER_W_A H
 
       INNER JOIN STOCK_LEDGER_POSTING_W_A P
@@ -87,6 +87,11 @@ export async function getSandingOutsidePendingJobStatusReport(
       LEFT OUTER JOIN PO_SO_DOC_HEADER_W_A S
         ON S.PO_SO_HDR_ID =
            D.PO_SO_DET_HEADER_ID
+
+      left outer join STOCK_LEDGER_POSTING_W_A Psrec
+	  on P.STK_DET_ID = Psrec.STK_PST_FROM_REF_DET_ID
+      left outer join STOCK_LEDGER_HEADER_W_A Hsrec
+	  on Hsrec.STK_HDR_DOC_ID = Psrec.STK_DET_HEADER_ID     
 
       WHERE
         H.STK_HDR_DOC_TYPE = 'TRAN'
