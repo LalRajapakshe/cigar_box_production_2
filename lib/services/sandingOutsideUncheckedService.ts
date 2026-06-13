@@ -27,7 +27,14 @@ export async function getSandingOutsideUncheckedReport(
 
         p.STK_PST_DOC_QTY as issuedKg,
 
-        R1.totalPiecesRequired as issuedPcs
+        R1.totalPiecesRequired as issuedPcs,
+
+        L5.STK_HDR_DOC_DATE as receivedDate,
+
+        L5.Su as received,
+
+        L5.empName as receivedBy
+
 
       FROM STOCK_LEDGER_HEADER_W_A H
 
@@ -67,6 +74,18 @@ export async function getSandingOutsideUncheckedReport(
       LEFT OUTER JOIN PO_SO_DOC_HEADER_W_A S
         ON S.PO_SO_HDR_ID =
            D.PO_SO_DET_HEADER_ID
+
+left outer join
+   (select p.STK_PST_FROM_REF_DET_ID, h.STK_HDR_DOC_DATE, e.empName, sum(p.STK_PST_DOC_QTY) as Su
+      FROM STOCK_LEDGER_HEADER_W_A H
+      INNER JOIN STOCK_LEDGER_POSTING_W_A P
+        ON H.STK_HDR_DOC_ID =P.STK_DET_HEADER_ID
+		inner join STOCK_LEDGER_HEADER_W_A_INF I on
+		H.STK_HDR_DOC_ID = I.STK_HDR_DOC_LH_ID 
+		inner join EmployeeMaster E on E.empId = I.STK_HDR_INF_LH_1
+		where H.STK_HDR_TO_LOC_ID = 131
+		group by p.STK_PST_FROM_REF_DET_ID, h.STK_HDR_DOC_DATE, e.empName) L5
+		on L5.STK_PST_FROM_REF_DET_ID = p.STK_DET_ID           
 
       WHERE
         H.STK_HDR_DOC_TYPE = 'TRAN'

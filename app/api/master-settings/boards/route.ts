@@ -10,12 +10,14 @@ function serializeBoard(board: {
   materialId: string | null;
   createdAt: Date;
   updatedAt: Date;
-}) {
+  boardType?: string | null;
+} ) {
   return {
-    ...board,
+    ...board, 
     materialId: board.materialId ?? undefined,
     createdAt: board.createdAt.toISOString(),
     updatedAt: board.updatedAt.toISOString(),
+    boardType: board.boardType ?? undefined,
   };
 }
 
@@ -68,6 +70,8 @@ const board = await prisma.boardDefinition.create({
     height: Number(body.height),
 
     materialId: body.materialId || null,
+
+    boardType: body.boardType || undefined,
 
     erpItemRefId: erpResult.erpItemRefId,
   },

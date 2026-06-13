@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
           bd.name as itemName,
 
-          bd.name as boardType,
+          bd.boardType as boardType,
 
           h.[totalBoardsRequired]
             as requiredBoardQty

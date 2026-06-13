@@ -14,7 +14,8 @@ export async function getSalesOrderSummaryReport(
         s.PO_SO_DESCRIPTION as customerPo,
         sum(
           d.PO_SO_QTY * d.PO_SO_PRICE
-        ) as amount
+        ) as amount,
+       (case when R.status = 'COMPLETE' then 'Closed' else 'Open' end) as status
       from ProductionPlanning R
       inner join Orders O
         on O.id = R.orderId
@@ -34,7 +35,8 @@ export async function getSalesOrderSummaryReport(
         s.PO_SO_CONTACT_NAME,
         s.PO_SO_DATE,
         s.PO_SO_DOC_NO,
-        s.PO_SO_DESCRIPTION
+        s.PO_SO_DESCRIPTION,
+        R.status
       order by
         s.PO_SO_DATE
     `);

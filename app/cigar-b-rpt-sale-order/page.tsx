@@ -105,15 +105,15 @@ const handlePrint = () => {
         <thead>
 
           <tr>
-            <th>SO No</th>
-            <th>Job No</th>
-            <th>Customer PO</th>
-            <th>Date</th>
-            <th>Item Code</th>
-            <th>Remaining Qty</th>
-            <th>Amount LKR</th>
-            <th>Amount USD</th>
-            <th>Ex Rate</th>
+            <th className="border px-4 py-2 text-left">SO No</th>
+            <th className="border px-4 py-2 text-left">Job No</th>
+            <th className="border px-4 py-2 text-left">Customer PO</th>
+            <th className="border px-4 py-2 text-left">Date</th>
+            <th className="border px-4 py-2 text-left">Item Code</th>
+            <th className="border px-4 py-2 text-right">Remaining Qty</th>
+            <th className="border px-4 py-2 text-right">Amount LKR</th>
+            <th className="border px-4 py-2 text-right">Amount USD</th>
+            <th className="border px-4 py-2 text-right">Ex Rate</th>
           </tr>
 
         </thead>
@@ -125,15 +125,15 @@ const handlePrint = () => {
 
               <tr key={index}>
 
-                <td>{row.soNo}</td>
-                <td>{row.jobNo}</td>
-                <td>{row.customerPo}</td>
-                <td>{row.date}</td>
-                <td>{row.itemCode}</td>
-                <td>{formatAmount(row.remainingQty)}</td>
-                <td>{formatAmount(row.amountLkr)}</td>
-                <td>{formatAmount(row.amountUsd)}</td>
-                <td>{row.exRate}</td>
+                <td className="border px-4 py-2 text-left">{row.soNo}</td>
+                <td className="border px-4 py-2 text-left">{row.jobNo}</td>
+                <td className="border px-4 py-2 text-left">{row.customerPo}</td>
+                <td className="border px-4 py-2 text-left">{row.date}</td>
+                <td className="border px-4 py-2 text-left">{row.itemCode}</td>
+                <td className="border px-4 py-2 text-right">{formatAmount(row.remainingQty)}</td>
+                <td className="border px-4 py-2 text-right">{formatAmount(row.amountLkr)}</td>
+                <td className="border px-4 py-2 text-right">{formatAmount(row.amountUsd)}</td>
+                <td className="border px-4 py-2 text-right">{formatAmount(row.exRate)}</td>
 
               </tr>
 

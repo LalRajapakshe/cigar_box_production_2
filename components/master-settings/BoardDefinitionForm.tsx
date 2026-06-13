@@ -22,6 +22,7 @@ const initialForm: BoardDefinitionInput = {
   width: 0,
   height: 0,
   materialId: "",
+  boardType: "",
 };
 
 export default function BoardDefinitionForm() {
@@ -30,6 +31,8 @@ export default function BoardDefinitionForm() {
   const [form, setForm] = useState<BoardDefinitionInput>(initialForm);
   const [loading, setLoading] = useState(true);
   const [savingBoard, setSavingBoard] = useState(false);  
+
+  const [boardType, setBoardType] = useState("");
 
   const loadData = async () => {
     setLoading(true);
@@ -56,7 +59,7 @@ try {
     setSavingBoard(true);
     await boardService.create({
       ...form,
-      name: form.name.trim(),
+      boardType: form.boardType?.trim(),
       materialId: form.materialId?.trim() || undefined,
     });
     setForm(initialForm);
@@ -146,6 +149,24 @@ try {
                     value={form.name}
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                    className={inputClassName}
+                    placeholder="e.g. Standard Board"
+                  />
+                  <p className="mt-2 text-xs text-slate-500">
+                    Display name used in recipe selection and planning.
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-white p-4">
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    Board Type
+                  </label>
+                  <input
+                    type="text"
+                    value={form.boardType}
+                    onChange={(e) =>
+                      setForm((prev) => ({ ...prev, BoardType: e.target.value }))
                     }
                     className={inputClassName}
                     placeholder="e.g. Standard Board"
@@ -344,7 +365,7 @@ try {
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div>
                       <h4 className="text-lg font-semibold text-slate-900">
-                        {board.name}
+                        {board.boardType}
                       </h4>
                       <p className="mt-1 text-sm text-slate-500">
                         Linked Material: {linkedMaterial?.name ?? "None"}

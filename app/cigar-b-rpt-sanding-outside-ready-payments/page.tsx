@@ -117,18 +117,19 @@ const exportExcel = () => {
 
           <tr>
 
-            <th className="text-left">Sales Order No</th>
-            <th className="text-left">Job No</th>
-            <th className="text-left">Issue No</th>
-            <th className="text-left">Issue Date</th>
-            <th className="text-left">Item Name</th>
-            <th className="text-left">Bag No</th>
-            <th className="text-right">Issued Kg</th>
-            <th className="text-right">Issued Pcs</th>
-            <th className="text-left">Rec. Date</th>
-            <th className="text-right">Received</th>
-            <th className="text-right">Rejected</th>
-            <th className="text-left">Rec. By</th>
+            <th className="border px-4 py-2 text-left">Sales Order No</th>
+            <th className="border px-4 py-2 text-left">Job No</th>
+            <th className="border px-4 py-2 text-left">Issue No</th>
+            <th className="border px-4 py-2 text-left">Issue Date</th>
+            <th className="border px-4 py-2 text-left">Item Name</th>
+            <th className="border px-4 py-2 text-left">Bag No</th>
+            <th className="border px-4 py-2 text-right">Issued Kg</th>
+            <th className="border px-4 py-2 text-right">Issued Pcs</th>
+            <th className="border px-4 py-2 text-left">Rec. Date</th>
+            <th className="border px-4 py-2 text-right">Received</th>
+            <th className="border px-4 py-2 text-right">Rejected</th>
+            <th className="border px-4 py-2 text-left">Rec. By</th>
+            <th className="border px-4 py-2 text-right">Good Pcs</th>
 
           </tr>
 
@@ -141,14 +142,14 @@ const exportExcel = () => {
 
               <tr key={index}>
 
-                <td>{row.salesOrderNo}</td>
-                <td>{row.jobNo}</td>
-                <td>{row.issueNo}</td>
-                <td>{row.issueDate}</td>
-                <td>{row.itemName}</td>
-                <td>{row.bagNo}</td>
+                <td className="border px-4 py-2 text-left">{row.salesOrderNo}</td>
+                <td className="border px-4 py-2 text-left">{row.jobNo}</td>
+                <td className="border px-4 py-2 text-left">{row.issueNo}</td>
+                <td className="border px-4 py-2 text-left">{row.issueDate}</td>
+                <td className="border px-4 py-2 text-left">{row.itemName}</td>
+                <td className="border px-4 py-2 text-left">{row.bagNo}</td>
 
-                <td className="text-right">
+                <td className="border px-4 py-2 text-right">
                   {Number(
                     row.issuedKg
                   ).toLocaleString(
@@ -160,27 +161,37 @@ const exportExcel = () => {
                   )}
                 </td>
 
-                <td className="text-right">
+                <td className="border px-4 py-2 text-right">
                   {Number(
                     row.issuedPcs
                   ).toLocaleString()
                 }</td>
 
-                <td>{row.receivedDate}</td>
+                <td className="border px-4 py-2 text-left">
+                  {row.receivedDate}
+                </td>
 
-                <td className="text-right">
+                <td className="border px-4 py-2 text-right">
                   {Number(
                     row.received
                   ).toLocaleString()}
                 </td>
 
-                <td className="text-right">
+                <td className="border px-4 py-2 text-right">
                   {Number(
                     row.rejected
                   ).toLocaleString()}
                 </td>
 
-                <td>{row.receivedBy}</td>
+                <td className="border px-4 py-2 text-left">
+                  {row.receivedBy}
+                </td>
+
+                <td className="border px-4 py-2 text-right">
+                  {Number(
+                    row.goodPcs
+                  ).toLocaleString()}
+                </td>
 
               </tr>
 

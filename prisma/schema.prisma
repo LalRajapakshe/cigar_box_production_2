@@ -33,6 +33,7 @@ model BoardDefinition {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   erpItemRefId Int?
+  boardType  String?
 
   material MaterialDefinition? @relation(fields: [materialId], references: [id])
   boxTypes BoxType[]

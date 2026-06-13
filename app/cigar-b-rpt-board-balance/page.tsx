@@ -1,5 +1,5 @@
 "use client";
-
+import * as XLSX from "xlsx";
 import { useState } from "react";
 
 import { boardBalanceReportService }
@@ -32,6 +32,27 @@ export default function BoardBalanceReportPage() {
   }
 };
 
+  const exportExcel = () => {
+  const worksheet =
+    XLSX.utils.json_to_sheet(rows);
+  const workbook =
+    XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "Report"
+  );
+  XLSX.writeFile(
+    workbook,
+    "MonthlyOrdersAndJobSummary.xlsx"
+  );
+};
+  const formatAmount = (value: any) =>
+  Number(value).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  
 const handlePrint = () => {
   window.print();
 };
@@ -73,6 +94,11 @@ const handlePrint = () => {
 >
   Print
 </button>  
+  <button
+  onClick={exportExcel}
+>
+  Export Excel
+</button>
           </div>
 
           <div className="overflow-auto rounded-2xl border border-slate-200">
@@ -114,14 +140,14 @@ const handlePrint = () => {
                     key={index}
                     className="border-t border-slate-200"
                   >
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-left">
                       {row.itemCode}
                     </td>
 
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-left">
                       {row.itemAlias}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-left">
                       {row.itemDescription}
                     </td>
 

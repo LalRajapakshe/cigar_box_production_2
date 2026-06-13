@@ -61,6 +61,7 @@ export default function Page() {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+  
 const handlePrint = () => {
   window.print();
 };
@@ -121,15 +122,19 @@ const handlePrint = () => {
 
           <tr>
 
-            <th>Customer</th>
-            <th>Date</th>
-            <th>Sales Order No</th>
-            <th>Customer PO</th>
-            <th>Remaining Qty</th>
-            <th>Unit Rate</th>
-            <th>Amount LKR</th>
-            <th>Amount USD</th>
-            <th>Ex Rate</th>
+            <th className="border px-4 py-2 text-left">Customer</th>
+            <th className="border px-4 py-2 text-left">Date</th>
+            <th className="border px-4 py-2 text-left">Sales Order No</th>
+            <th className="border px-4 py-2 text-left">Job No</th>
+            <th className="border px-4 py-2 text-left">Item Code</th>
+            <th className="border px-4 py-2 text-left">Box Type</th>
+            <th className="border px-4 py-2 text-left">Customer PO</th>
+            <th className="border px-4 py-2 text-right">Remaining Qty</th>
+            <th className="border px-4 py-2 text-right">Unit Rate (LKR)</th>
+            <th className="border px-4 py-2 text-right">Unit Rate (USD)</th>
+            <th className="border px-4 py-2 text-right">Amount LKR</th>
+            <th className="border px-4 py-2 text-right">Amount USD</th>
+            <th className="border px-4 py-2 text-right">Ex Rate</th>
 
           </tr>
 
@@ -145,9 +150,13 @@ const handlePrint = () => {
                 <td>{row.customerName}</td>
                 <td>{row.date}</td>
                 <td>{row.salesOrderNo}</td>
+                <td>{row.jobNo}</td>
+                <td>{row.itemCode}</td>
+                <td>{row.boxType}</td>
                 <td>{row.customerPo}</td>
                 <td>{formatAmount(row.remainingQty)}</td>
                 <td>{formatAmount(row.unitRate)}</td>
+                <td>{formatAmount(row.unitRateUSD)}</td>
                 <td>{formatAmount(row.amountLkr)}</td>
                 <td>{formatAmount(row.amountUsd)}</td>
                 <td>{row.exRate}</td>

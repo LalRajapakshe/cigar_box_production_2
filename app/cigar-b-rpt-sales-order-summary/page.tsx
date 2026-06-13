@@ -63,6 +63,10 @@ export default function Page() {
 const handlePrint = () => {
   window.print();
 };
+const totalAmount = rows.reduce(
+  (sum, row) => sum + Number(row.amount || 0),
+  0
+);
   return (
 
     <div className="space-y-4">
@@ -119,12 +123,12 @@ const handlePrint = () => {
 
           <tr>
 
-            <th>Customer</th>
-            <th>Date</th>
-            <th>Sales Order No</th>
-            <th>Customer PO</th>
-            <th>Amount</th>
-
+            <th className="px-4 py-3 text-left">Customer</th>
+            <th className="px-4 py-3 text-left">Date</th>
+            <th className="px-4 py-3 text-left">Sales Order No</th>
+            <th className="px-4 py-3 text-left">Customer PO</th>
+            <th className="px-4 py-3 text-right">Amount</th>
+            <th className="px-4 py-3 text-left">Status</th>
           </tr>
 
         </thead>
@@ -136,24 +140,28 @@ const handlePrint = () => {
 
               <tr key={index}>
 
-                <td>
+                <td className="px-4 py-3 text-left">
                   {row.customerName}
                 </td>
 
-                <td>
+                <td className="px-4 py-3 text-left">
                   {row.date}
                 </td>
 
-                <td>
+                <td className="px-4 py-3 text-left">
                   {row.salesOrderNo}
                 </td>
 
-                <td>
+                <td className="px-4 py-3 text-left">
                   {row.customerPo}
                 </td>
 
-                <td className="text-right">
+                <td className="px-4 py-3 text-right">
                   {formatAmount(row.amount)}
+                </td>
+
+                <td className="px-4 py-3 text-left">
+                  {row.status}
                 </td>
 
               </tr>
@@ -162,6 +170,31 @@ const handlePrint = () => {
           )}
 
         </tbody>
+<tbody>
+
+  {rows.map((row, index) => (
+    <tr key={index}>
+      ...
+    </tr>
+  ))}
+
+    <tr className="border-t-2 font-bold">
+    <td colSpan={4}>TOTAL</td>
+
+      <td className="text-right">
+      {totalAmount.toLocaleString(
+        "en-US",
+        {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }
+      )}
+    </td>
+
+    <td></td>
+  </tr>  
+
+</tbody>        
 
       </table>
 

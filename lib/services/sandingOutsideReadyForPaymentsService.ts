@@ -35,7 +35,9 @@ export async function getSandingOutsideReadyForPaymentsReport(
 
         L6.Su as rejected,
 
-        L5.empName as receivedBy
+        L5.empName as receivedBy,
+
+        (isnull(L5.Su,0) - isnull(L6.Su,0)) as goodPcs
 
       FROM STOCK_LEDGER_HEADER_W_A H
 

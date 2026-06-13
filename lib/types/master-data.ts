@@ -59,6 +59,7 @@ export interface BoardDefinition extends BaseEntity {
   width: number;
   height: number;
   materialId?: string;
+  boardType?: string;
 }
 
 export interface BoxTypeSheets {

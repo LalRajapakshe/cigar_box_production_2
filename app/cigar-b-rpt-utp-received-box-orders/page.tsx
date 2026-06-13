@@ -60,6 +60,10 @@ export default function Page() {
 const handlePrint = () => {
   window.print();
 };
+const totalQuantity = rows.reduce(
+  (sum, row) => sum + Number(row.totalQty || 0),
+  0
+);
   return (
     <div className="space-y-4">
 
@@ -114,8 +118,8 @@ const handlePrint = () => {
         <thead>
 
           <tr>
-            <th>Item Code</th>
-            <th>Total Qty</th>
+            <th className="border px-4 py-2 text-left">Item Code</th>
+            <th className="border px-4 py-2 text-right">Total Qty</th>
           </tr>
 
         </thead>
@@ -127,11 +131,11 @@ const handlePrint = () => {
 
               <tr key={index}>
 
-                <td>
+                <td className="border px-4 py-2">
                   {row.itemCode}
                 </td>
 
-                <td>
+                <td className="border px-4 py-2 text-right">
                   {formatAmount(row.totalQty)}
                 </td>
 
@@ -141,7 +145,24 @@ const handlePrint = () => {
           )}
 
         </tbody>
+<tbody>
 
+  {rows.map((row, index) => (
+    <tr key={index}>
+      ...
+    </tr>
+  ))}
+
+  <tr className="font-bold bg-gray-100">
+    <td colSpan={1}>TOTAL</td>
+
+    <td className="text-right">
+      {totalQuantity.toLocaleString()}
+    </td>
+        <td></td>
+  </tr>
+
+</tbody>
       </table>
 
     </div>
