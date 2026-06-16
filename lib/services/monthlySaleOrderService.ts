@@ -20,6 +20,7 @@ export async function getMonthlySaleOrderReport(
           d.PO_SO_ITEM_NAME as itemCode,
           O.quantity as remainingQty,
           o.lkrRatePerBox * O.quantity as amountLkr,
+          o.usdRatePerBox as rateUsd,
           o.usdRatePerBox * O.quantity as amountUsd,
           o.usdToLkrRate as exRate
         from orders O

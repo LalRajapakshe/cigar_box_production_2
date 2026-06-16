@@ -132,11 +132,11 @@ export default function UtpItemOrderYearPage() {
                 <tr>
 
                   <th className="px-4 py-3">
-                    ID
+                    Item Id
                   </th>
 
                   <th className="px-4 py-3">
-                    Item Name
+                    Box Type
                   </th>
 
                   <th className="px-4 py-3">Jan</th>
@@ -167,14 +167,12 @@ export default function UtpItemOrderYearPage() {
                       className="border-t border-slate-200"
                     >
 
-                      <td className="px-4 py-3">
-                        {row.boardId}
+                     <td className="px-4 py-3">
+                        {row['itemCode']} 
                       </td>
-
                       <td className="px-4 py-3">
-                        {row['Item Name']}
+                        {row['description']}
                       </td>
-
                       <td>{row.Jan}</td>
                       <td>{row.Feb}</td>
                       <td>{row.Mar}</td>

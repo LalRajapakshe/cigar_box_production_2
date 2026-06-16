@@ -112,6 +112,7 @@ const handlePrint = () => {
             <th className="border px-4 py-2 text-left">Item Code</th>
             <th className="border px-4 py-2 text-right">Remaining Qty</th>
             <th className="border px-4 py-2 text-right">Amount LKR</th>
+            <th className="border px-4 py-2 text-right">Rate USD</th>
             <th className="border px-4 py-2 text-right">Amount USD</th>
             <th className="border px-4 py-2 text-right">Ex Rate</th>
           </tr>
@@ -132,6 +133,7 @@ const handlePrint = () => {
                 <td className="border px-4 py-2 text-left">{row.itemCode}</td>
                 <td className="border px-4 py-2 text-right">{formatAmount(row.remainingQty)}</td>
                 <td className="border px-4 py-2 text-right">{formatAmount(row.amountLkr)}</td>
+                <td className="border px-4 py-2 text-right">{formatAmount(row.rateUsd)}</td>
                 <td className="border px-4 py-2 text-right">{formatAmount(row.amountUsd)}</td>
                 <td className="border px-4 py-2 text-right">{formatAmount(row.exRate)}</td>
 

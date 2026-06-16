@@ -127,6 +127,7 @@ const handlePrint = () => {
             <th className="border px-4 py-2 text-left">Sales Order No</th>
             <th className="border px-4 py-2 text-left">Job No</th>
             <th className="border px-4 py-2 text-left">Item Code</th>
+            <th className="border px-4 py-2 text-left">Description</th>
             <th className="border px-4 py-2 text-left">Box Type</th>
             <th className="border px-4 py-2 text-left">Customer PO</th>
             <th className="border px-4 py-2 text-right">Remaining Qty</th>
@@ -152,6 +153,7 @@ const handlePrint = () => {
                 <td>{row.salesOrderNo}</td>
                 <td>{row.jobNo}</td>
                 <td>{row.itemCode}</td>
+                <td>{row.plankCutting}</td>
                 <td>{row.boxType}</td>
                 <td>{row.customerPo}</td>
                 <td>{formatAmount(row.remainingQty)}</td>

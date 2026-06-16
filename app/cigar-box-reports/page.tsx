@@ -86,6 +86,18 @@ const reportGroups = [
       name: "Production Pending Orders",
       href: "/cigar-b-rpt-production-pending-orders",
     },
+        {
+      name: "Sanding Outstanding Payment History",
+      href: "/cigar-b-rpt-utp-perimeter-range-summary",
+    },
+      {
+      name: "Sanding Outside Receivable Job Wise Item",
+      href: "/cigar-b-rpt-sanding-outside-job-wise-item",
+    },
+      {
+      name: "Sanding Outside Receivable Supplier Wise Item",
+      href: "/cigar-b-rpt-sanding-outside-supplier-wise-item",
+    },    
     ],
   },
 

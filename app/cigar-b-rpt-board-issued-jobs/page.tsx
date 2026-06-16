@@ -152,7 +152,7 @@ const exportExcel = () => {
                   </th>
 
                   <th className="px-4 py-3 text-left">
-                    Board Name
+                    Item Name
                   </th>
 
 

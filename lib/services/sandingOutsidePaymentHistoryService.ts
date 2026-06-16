@@ -33,8 +33,10 @@ export async function getSandingOutsidePaymentHistoryReport(
 
         L5.Su as received,
 
-        L6.Su as rejected,
+        (isnull(L5.Su, 0) - isnull(L6.Su, 0)) as goodPcs,
 
+        L6.Su as rejected,
+        
         L5.empName as receivedBy,
 
         CAST('' AS VARCHAR(50))

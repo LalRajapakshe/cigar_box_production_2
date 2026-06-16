@@ -29,8 +29,8 @@ export async function GET(
       await prisma.$queryRawUnsafe(`
      SELECT
 
-        B.name AS [Item Name] ,
-
+        B.name AS [itemCode] ,
+         B.description AS [description] ,
     SUM(
         CASE
             WHEN MONTH(O.deliveryDate) = 1
@@ -135,7 +135,7 @@ INNER JOIN BoxType B
 WHERE YEAR(O.deliveryDate) = ${year}
 
 GROUP BY
-    B.name
+    B.name, B.description
 
 ORDER BY
     B.name;

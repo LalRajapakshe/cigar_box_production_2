@@ -105,6 +105,7 @@ const handlePrint = () => {
             <th>Issued Pcs</th>
             <th>Rec. Date</th>
             <th>Received</th>
+            <th>Good Pcs</th>
             <th>Rejected</th>
             <th>Rec. By</th>
             <th>Payment No</th>
@@ -143,7 +144,11 @@ const handlePrint = () => {
                   row.received
                 ).toLocaleString()}
               </td>
-
+              <td className="text-right">
+                {Number(row.goodPcs
+                ).toLocaleString()}
+              </td>
+         
               <td className="text-right">
                 {Number(
                   row.rejected
