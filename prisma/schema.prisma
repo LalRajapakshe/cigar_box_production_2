@@ -277,7 +277,7 @@ model BoxSheetConversion {
 
   conversionQty Int
 
-  transferNoteId Int
+  transferNoteId Int?
 
   remarks String?
 

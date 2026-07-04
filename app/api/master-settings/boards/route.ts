@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createERPItem } from "@/lib/server/erpItemService";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function serializeBoard(board: {
   id: string;
   name: string;
@@ -27,7 +30,11 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(boards.map(serializeBoard));
+    return NextResponse.json(boards.map(serializeBoard), {
+  headers: {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+  },
+});
   } catch (error) {
     console.error("GET /api/master-settings/boards failed:", error);
 
@@ -36,7 +43,10 @@ export async function GET() {
         message: "Failed to load boards.",
         error: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    }, }
     );
   }
 }
@@ -48,7 +58,10 @@ export async function POST(request: Request) {
     if (!body.name?.trim()) {
       return NextResponse.json(
         { message: "Board name is required." },
-        { status: 400 }
+        { status: 400,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    }, }
       );
     }
 
@@ -76,7 +89,12 @@ const board = await prisma.boardDefinition.create({
     erpItemRefId: erpResult.erpItemRefId,
   },
 });
-    return NextResponse.json(serializeBoard(board), { status: 201 });
+    return NextResponse.json(serializeBoard(board), {
+      status: 201,
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    });
   } catch (error) {
     console.error("POST /api/master-settings/boards failed:", error);
 
@@ -85,7 +103,10 @@ const board = await prisma.boardDefinition.create({
         message: "Failed to create board.",
         error: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 ,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    },}
     );
   }
 }

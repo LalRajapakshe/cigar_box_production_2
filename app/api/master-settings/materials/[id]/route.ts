@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type RouteContext = {
   params: { id: string };
 };
@@ -28,13 +31,20 @@ export async function GET(_: Request, { params }: RouteContext) {
   });
 
   if (!material) {
-    return NextResponse.json(
-      { message: "Material not found." },
-      { status: 404 }
-    );
+      return NextResponse.json({
+        message: "Material not found.",
+        status: 404,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      });
   }
 
-  return NextResponse.json(serializeMaterial(material));
+  return NextResponse.json(serializeMaterial(material), {
+  headers: {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+  },
+});
 }
 
 export async function PUT(request: Request, { params }: RouteContext) {
@@ -52,7 +62,11 @@ export async function PUT(request: Request, { params }: RouteContext) {
     },
   });
 
-  return NextResponse.json(serializeMaterial(material));
+  return NextResponse.json(serializeMaterial(material), {
+  headers: {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+  },
+});
 }
 
 export async function DELETE(_: Request, { params }: RouteContext) {
@@ -60,5 +74,9 @@ export async function DELETE(_: Request, { params }: RouteContext) {
     where: { id: params.id },
   });
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true }, {
+  headers: {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+  },
+});
 }

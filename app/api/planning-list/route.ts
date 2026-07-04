@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const rows =
@@ -18,7 +21,11 @@ export async function GET() {
         },
       });
 
-    return NextResponse.json(rows);
+    return NextResponse.json(rows, {
+  headers: {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+  },
+});
   } catch (error) {
     console.error(error);
 
@@ -28,6 +35,9 @@ export async function GET() {
       },
       {
         status: 500,
+        headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    },
       }
     );
   }

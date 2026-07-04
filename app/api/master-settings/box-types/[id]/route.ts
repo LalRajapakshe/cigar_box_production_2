@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { getBoxTypeSheetPayload, toClientBoxType } from "@/lib/server/boxTypeMapper";
 import type { BoxTypeInput } from "@/lib/types/master-data";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type RouteContext = {
   params: { id: string };
 };

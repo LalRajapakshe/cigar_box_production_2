@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function serializeBoard(board: {
   id: string;
   name: string;
@@ -23,7 +26,11 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json(boards.map(serializeBoard));
+  return NextResponse.json(boards.map(serializeBoard), {
+  headers: {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+  },
+});
 }
 
 export async function POST(request: Request) {
@@ -32,7 +39,10 @@ export async function POST(request: Request) {
   if (!body.name?.trim()) {
     return NextResponse.json(
       { message: "Board name is required." },
-      { status: 400 }
+      { status: 400 ,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    },}
     );
   }
 
@@ -45,5 +55,10 @@ export async function POST(request: Request) {
     },
   });
 
-  return NextResponse.json(serializeBoard(board), { status: 201 });
+  return NextResponse.json(serializeBoard(board), {
+    status: 201,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    },
+  });
 }

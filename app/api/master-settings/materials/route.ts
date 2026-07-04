@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function serializeMaterial(material: {
   id: string;
   name: string;
@@ -24,7 +27,11 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(materials.map(serializeMaterial));
+    return NextResponse.json(materials.map(serializeMaterial), {
+  headers: {
+    "Cache-Control": "no-store, no-cache, must-revalidate",
+  },
+});
   } catch (error) {
     console.error("GET /api/master-settings/materials failed:", error);
 
@@ -33,7 +40,10 @@ export async function GET() {
         message: "Failed to load materials.",
         error: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      { status: 500 ,
+    headers: {
+      "Cache-Control": "no-store, no-cache, must-revalidate",
+    }, }
     );
   }
 }
@@ -45,7 +55,12 @@ export async function POST(request: Request) {
     if (!body.name?.trim()) {
       return NextResponse.json(
         { message: "Material name is required." },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            "Cache-Control": "no-store, no-cache, must-revalidate",
+          },
+        }
       );
     }
 
@@ -60,7 +75,12 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(serializeMaterial(material), { status: 201 });
+    return NextResponse.json(serializeMaterial(material), {
+      status: 201,
+      headers: {
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    });
   } catch (error) {
     console.error("POST /api/master-settings/materials failed:", error);
 
@@ -69,7 +89,12 @@ export async function POST(request: Request) {
         message: "Failed to create material.",
         error: error instanceof Error ? error.message : String(error),
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        },
+      }
     );
   }
 }

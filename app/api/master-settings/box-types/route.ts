@@ -7,6 +7,9 @@ import {
 import type { BoxTypeInput } from "@/lib/types/master-data";
 import { createERPItem } from "@/lib/server/erpItemService";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function fetchBoxTypeById(id: string) {
   return prisma.boxType.findUnique({
     where: { id },

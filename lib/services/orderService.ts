@@ -3,7 +3,10 @@ import type { Order, OrderInput } from "../types/order";
 
 export const orderService = {
   async getAll(): Promise<Order[]> {
-    const response = await fetch(`${API_BASE}/orders`);
+    const response = await fetch(`${API_BASE}/orders`,
+  {
+    cache: "no-store",
+  });
 
     if (!response.ok) {
       throw new Error("Failed to load orders");
@@ -13,7 +16,10 @@ export const orderService = {
   },
 
   async getById(id: string): Promise<Order | null> {
-    const response = await fetch(`/api/orders/${id}`);
+    const response = await fetch(`/api/orders/${id}`,
+  {
+    cache: "no-store",
+  });
 
     if (!response.ok) {
       return null;
@@ -24,6 +30,9 @@ export const orderService = {
 
   async create(input: OrderInput): Promise<Order> {
     const response = await fetch(`${API_BASE}/orders`, {
+  
+    cache: "no-store",
+  
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,6 +52,7 @@ export const orderService = {
     updates: Partial<OrderInput>
   ): Promise<Order> {
     const response = await fetch(`/api/orders/${id}`, {
+      cache: "no-store",
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -59,6 +69,7 @@ export const orderService = {
 
   async remove(id: string): Promise<void> {
     const response = await fetch(`/api/orders/${id}`, {
+      cache: "no-store",
       method: "DELETE",
     });
 
