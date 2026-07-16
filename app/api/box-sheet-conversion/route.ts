@@ -28,7 +28,7 @@ select
 from BoxTypeSheet S
 inner join ITEM_MASTER I
   on I.IT_MST_CODE =
-     S.erpItemRefIdPcs
+     S.erpItemRefIdpcs
 inner join BoxSheetMapping X
   on X.boxTypeId =
      S.boxTypeId
@@ -221,6 +221,7 @@ where X.boxTypeId =
     Number(body.conversionQty),
     Number(body.fromStockRefId)
     );
+
 if (affected === 0) {
   throw new Error(
     "Failed to reduce box stock."

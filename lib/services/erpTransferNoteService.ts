@@ -226,7 +226,7 @@ export async function createBoxSheetTransferNote(
       from BoxTypeSheet S
       inner join ITEM_MASTER I
         on I.IT_MST_CODE =
-           S.erpItemRefIdPcs
+           S.erpItemRefIdpcs
       inner join BoxSheetMapping X
         on X.boxTypeId =
            S.boxTypeId
