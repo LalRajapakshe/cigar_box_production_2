@@ -208,8 +208,24 @@ where X.boxTypeId =
           transferNoteId:
             transferId,
         },
-      }
+      });
+      // TEMPORARY - Reduce original box stock
+     const affected =
+  await prisma.$executeRawUnsafe(
+    `
+    UPDATE STOCK_LEDGER_POSTING_W_A
+    SET STK_PST_HOQ = STK_PST_HOQ - @P1
+    WHERE STK_DET_ID = @P2
+      AND STK_PST_HOQ >= @P1
+    `,
+    Number(body.conversionQty),
+    Number(body.fromStockRefId)
     );
+if (affected === 0) {
+  throw new Error(
+    "Failed to reduce box stock."
+  );
+}
 
     return NextResponse.json({
       id:
