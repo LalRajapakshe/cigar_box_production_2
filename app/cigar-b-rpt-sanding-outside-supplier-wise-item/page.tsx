@@ -189,7 +189,7 @@ const handlePrint = () => {
                     </th>
 
                     <th className="border px-2 py-1 text-right">
-                      T/P
+                      T/B
                     </th>
 
                     <th className="border px-2 py-1 text-right">

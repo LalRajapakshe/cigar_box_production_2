@@ -182,7 +182,7 @@ const handlePrint = () => {
           <tr className="font-bold">
 
             <td
-              colSpan={2}
+              colSpan={3}
               className="border px-4 py-2"
             >
               TOTAL

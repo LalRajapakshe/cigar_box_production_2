@@ -592,8 +592,7 @@ alert("Status updated successfully");
 
     {planningRecords.map((planning) => (
       <option key={planning.id} value={planning.id}>
-        {planning.planningNo} | {planning.order?.orderNo} |
-        {planning.status}
+        {planning.displayText}
       </option>
     ))}
   </select>

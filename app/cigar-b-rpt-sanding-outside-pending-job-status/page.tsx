@@ -125,7 +125,7 @@ const handlePrint = () => {
             <th className="text-left">Item Name</th>
             <th className="text-left">Bag No</th>
 
-            <th>T/P</th>
+            <th>T/B</th>
             <th>Bottom</th>
             <th>Long</th>
             <th>Small</th>

@@ -64,6 +64,7 @@ const totalQuantity = rows.reduce(
   (sum, row) => sum + Number(row.totalQty || 0),
   0
 );
+const totalBox = rows.length;
   return (
     <div className="space-y-4">
 
@@ -159,8 +160,13 @@ const totalQuantity = rows.reduce(
     <td className="text-right">
       {totalQuantity.toLocaleString()}
     </td>
-        <td></td>
-  </tr>
+    </tr>
+  <tr className="font-bold border-t">
+      <td className="border px-4 py-2">Total Box</td>
+      <td className="border px-4 py-2 text-right">
+        {totalBox}
+      </td>
+    </tr>
 
 </tbody>
       </table>

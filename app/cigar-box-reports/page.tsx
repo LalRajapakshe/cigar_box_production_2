@@ -87,7 +87,7 @@ const reportGroups = [
       href: "/cigar-b-rpt-production-pending-orders",
     },
         {
-      name: "Sanding Outstanding Payment History",
+      name: "UTP Perimeter Range Summary",
       href: "/cigar-b-rpt-utp-perimeter-range-summary",
     },
       {
